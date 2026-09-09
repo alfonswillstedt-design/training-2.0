@@ -139,7 +139,7 @@ export function SettingsSheet({
                       },
                     })
                   }
-                  className="min-h-11 shrink-0 px-2 text-[13px] font-medium text-accent"
+                  className="min-h-11 shrink-0 px-2 text-[13px] font-medium text-accent-text"
                 >
                   {hours ? strings.settings.markClosed : strings.settings.markOpen}
                 </button>

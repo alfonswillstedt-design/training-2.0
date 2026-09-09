@@ -35,7 +35,7 @@ export function DaySheet({
       <Sheet title={strings.dayLabel(day.date)} closeLabel={strings.week.close} onClose={onClose}>
         {day.session ? (
           <div className="mb-8 rounded-soft border border-line bg-raised px-5 py-4">
-            <p className="text-[12px] font-semibold tracking-[0.14em] text-accent uppercase">
+            <p className="text-[12px] font-semibold tracking-[0.14em] text-accent-text uppercase">
               {day.session.sessionName}
             </p>
             <p className="mt-1 text-[22px] font-semibold tabular-nums">

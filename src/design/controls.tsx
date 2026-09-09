@@ -27,7 +27,7 @@ export function Button({
   const look = {
     primary: 'bg-accent text-accent-ink font-semibold disabled:opacity-40',
     quiet: 'border border-line text-ink font-medium',
-    danger: 'border border-line text-accent font-medium',
+    danger: 'border border-line text-accent-text font-medium',
   }[variant];
 
   return (
@@ -46,7 +46,9 @@ export function Button({
 
 export function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="mb-6">
+    // Grupp i stället för label: en label får bara namnge en kontroll, och
+    // flera av fälten här innehåller ett par kontroller tillsammans.
+    <div role="group" aria-label={label} className="mb-6">
       <p className="mb-2 text-[12px] font-semibold tracking-[0.14em] text-ink-faint uppercase">
         {label}
       </p>
@@ -58,12 +60,16 @@ export function Field({ label, children }: { label: string; children: ReactNode 
 export function TextField({
   value,
   onChange,
+  label,
   placeholder,
   autoFocus,
   onSubmit,
 }: {
   value: string;
   onChange: (value: string) => void;
+  /** Namnet en skärmläsare läser upp. En platshållare räcker inte — den
+      försvinner så fort fältet får innehåll. */
+  label: string;
   placeholder?: string | undefined;
   autoFocus?: boolean | undefined;
   /** Anropas på Enter. Att skriva ett namn och trycka retur ska räcka. */
@@ -73,6 +79,7 @@ export function TextField({
     <input
       type="text"
       value={value}
+      aria-label={label}
       placeholder={placeholder}
       autoFocus={autoFocus}
       onChange={(event) => onChange(event.target.value)}
@@ -164,7 +171,7 @@ export function TimeRange({
         <span className="text-ink-faint">–</span>
         <TimeField value={end} label={strings.timeField.to} onChange={(next) => onChange({ start, end: next })} />
       </div>
-      {error && <p className="mt-2 text-[13px] text-accent">{error}</p>}
+      {error && <p className="mt-2 text-[13px] text-accent-text">{error}</p>}
     </>
   );
 }

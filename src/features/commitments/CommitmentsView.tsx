@@ -69,7 +69,7 @@ export function CommitmentsView({
                     <span className="flex items-center gap-2">
                       <span className="text-[17px] font-semibold">{commitment.label}</span>
                       {commitment.needsMealAfter && (
-                        <span className="rounded-tight bg-accent-wash px-2 py-0.5 text-[11px] font-semibold text-accent">
+                        <span className="rounded-tight bg-accent-wash px-2 py-0.5 text-[11px] font-semibold text-accent-text">
                           {strings.commitments.mealAfterBadge}
                         </span>
                       )}
@@ -117,7 +117,7 @@ export function CommitmentsView({
                         onClick={() =>
                           onChange(removeExceptionAt(commitments, item.commitmentId, item.index))
                         }
-                        className="-mr-2 shrink-0 px-2 py-2 text-[14px] font-medium text-accent"
+                        className="-mr-2 shrink-0 px-2 py-2 text-[14px] font-medium text-accent-text"
                       >
                         {strings.exceptionEditor.remove}
                       </button>

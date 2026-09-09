@@ -187,7 +187,7 @@ function DayRow({
             )}
           </span>
           {day.session && (
-            <span className="text-[16px] font-semibold text-accent tabular-nums">
+            <span className="text-[16px] font-semibold text-accent-text tabular-nums">
               {clock(day.session.start)}
             </span>
           )}
@@ -227,7 +227,7 @@ function DayRow({
         }}
         onPointerUp={onDragEnd}
         onPointerCancel={onDragCancel}
-        className={`relative mx-4 mt-3 mb-4 h-8 touch-pan-y overflow-hidden rounded-tight ${
+        className={`relative mx-4 mt-3 mb-4 h-11 touch-pan-y overflow-hidden rounded-tight ${
           dragging ? 'bg-accent-wash' : 'bg-paper'
         }`}
       >

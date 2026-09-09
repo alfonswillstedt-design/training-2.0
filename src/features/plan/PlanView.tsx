@@ -76,6 +76,7 @@ export function PlanView({
                 <li key={session.id} className="flex items-center gap-2">
                   <TextField
                     value={session.name}
+                    label={strings.plan.sessionPlaceholder}
                     onChange={(name) => onChange(renameSession(plan, session.id, name))}
                   />
                   <IconButton

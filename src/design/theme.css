@@ -13,10 +13,14 @@
   --paper: #faf8f4;
   --raised: #ffffff;
   --ink: #1a1713;
-  --ink-soft: #6e6659;
-  --ink-faint: #a9a192;
+  --ink-soft: #5d5649;
+  --ink-faint: #757062;
   --line: #e7e1d7;
+  /* Fyllning. Vit text ovanpå den ligger precis över gränsen. */
   --accent: #d14808;
+  /* Accentfärgad *text* behöver vara mörkare än fyllningen för att klara
+     4,5:1 mot pappret. Samma färg fungerar inte till båda. */
+  --accent-text: #a63a04;
   --accent-ink: #ffffff;
   --accent-wash: #fbeee6;
 
@@ -31,10 +35,12 @@
     --paper: #121110;
     --raised: #1c1a17;
     --ink: #f4f1ea;
-    --ink-soft: #9b9384;
-    --ink-faint: #6b6458;
+    --ink-soft: #aaa192;
+    --ink-faint: #8b8374;
     --line: #2c2924;
     --accent: #ff7a3d;
+    /* Mot en mörk botten räcker accentfärgen redan som text. */
+    --accent-text: #ff7a3d;
     --accent-ink: #1a1713;
     --accent-wash: #2a1b12;
   }
@@ -48,6 +54,7 @@
   --color-ink-faint: var(--ink-faint);
   --color-line: var(--line);
   --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
   --color-accent-ink: var(--accent-ink);
   --color-accent-wash: var(--accent-wash);
 

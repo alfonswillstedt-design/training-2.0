@@ -16,6 +16,7 @@ export function NewSession({
       <TextField
         value={value}
         onChange={onChange}
+        label={strings.plan.addSession}
         placeholder={strings.plan.sessionPlaceholder}
         onSubmit={onAdd}
       />

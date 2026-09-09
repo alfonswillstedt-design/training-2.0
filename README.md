@@ -13,8 +13,9 @@ eller Strong, inte ersätta dem.
 
 ## Läge
 
-Steg 1–6 av 9 i byggordningen är klara: schemaläggningsmotorn med tester, alla
-fyra flikar, lagringen, och första besökets frågor. Allt sparas i localStorage
+Steg 1–8 av 9 i byggordningen är klara: schemaläggningsmotorn med tester, alla
+fyra flikar, lagringen, första besökets frågor, veckovyns signaturinteraktion,
+och genomgången av tomma tillstånd, mörkt läge och tillgänglighet. Allt sparas i localStorage
 under en enda nyckel och kan exporteras och importeras som JSON.
 
 Veckovyns signaturinteraktion finns: dra på en dag för att markera upptagen
@@ -23,7 +24,11 @@ genom samma motor som allt annat, så blocket som rör sig är ett riktigt
 resultat — inte en animation som låtsas. Ingenting skrivs förrän man släpper,
 och samma sak går att göra utan drag genom att trycka på dagen.
 
-Kvar: tomma tillstånd och tillgänglighet, och sist PWA och deploy.
+Appen ligger live på https://alfonswillstedt-design.github.io/training-2.0/
+och deployas automatiskt vid varje push. Testerna är en grind i bygget: går de
+inte igenom deployas ingenting.
+
+Kvar: PWA — service worker, manifest och ikoner.
 
 ## Kommandon
 
@@ -52,6 +57,11 @@ Mobilen först, 390 px som mått. Ett typsnitt — Instrument Sans, självhostat
 appen fungerar i flygplansläge — där vikt och storlek är enda kontrastmedel.
 Exakt två hörnradier. Mörkt läge följer systemet och är ingen inställning.
 Klockslag sätts med tabulära siffror så de inte hoppar när de uppdateras.
+
+Färgerna är mätta, inte gissade. All text når 4,5:1 mot sin bakgrund i både
+ljust och mörkt läge, och varje träffyta är minst 44 px. Accentfärgen finns i
+två toner: en ljusare som fyllning och en mörkare som text, eftersom samma ton
+inte klarar båda kraven mot ett ljust papper.
 
 ## Data
 

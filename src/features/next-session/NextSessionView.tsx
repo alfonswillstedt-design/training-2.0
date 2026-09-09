@@ -85,7 +85,7 @@ export function NextSessionView({
           <button
             type="button"
             onClick={() => onComplete(missedToday.sessionId)}
-            className="mt-2 min-h-11 text-[15px] font-semibold text-accent"
+            className="mt-2 min-h-11 text-[15px] font-semibold text-accent-text"
           >
             {strings.nextSession.confirmMissed}
           </button>
@@ -198,7 +198,7 @@ function HoldPoints({ session }: { session: PlannedSession }) {
           <time dateTime={clock(point.at)} className="text-[15px] text-ink-soft">
             {clock(point.at)}
           </time>
-          <span className={point.emphasis ? 'text-[15px] font-semibold text-accent' : 'text-[15px]'}>
+          <span className={point.emphasis ? 'text-[15px] font-semibold text-accent-text' : 'text-[15px]'}>
             {point.label}
           </span>
           <span className="text-[13px] text-ink-faint">{point.note}</span>

@@ -54,7 +54,7 @@ export function TabBar({ active, onChange }: { active: TabId; onChange: (id: Tab
               aria-current={selected ? 'page' : undefined}
               onClick={() => onChange(tab.id)}
               className={`flex h-[var(--tabbar-height)] flex-1 flex-col items-center justify-center gap-1 ${
-                selected ? 'text-accent' : 'text-ink-faint'
+                selected ? 'text-accent-text' : 'text-ink-faint'
               }`}
             >
               {tab.icon}
@@ -95,7 +95,7 @@ export function Sheet({
             <button
               type="button"
               onClick={onClose}
-              className="-mr-2 shrink-0 px-2 text-[15px] font-medium text-accent"
+              className="-mr-2 shrink-0 px-2 text-[15px] font-medium text-accent-text"
             >
               {closeLabel}
             </button>

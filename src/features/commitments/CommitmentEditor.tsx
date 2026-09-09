@@ -48,6 +48,7 @@ export function CommitmentEditor({
       <Field label={strings.commitmentEditor.nameLabel}>
         <TextField
           value={commitment.label}
+          label={strings.commitmentEditor.nameLabel}
           onChange={(label) => onChange({ label })}
           placeholder={strings.commitmentEditor.namePlaceholder}
           autoFocus={isNew}
