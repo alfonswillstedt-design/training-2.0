@@ -1,5 +1,5 @@
 import { clock, clockRange, duration } from '../design/time';
-import { addDays, weekdayOf } from '../scheduling/date';
+import { addDays, dayOfMonth, weekdayOf } from '../scheduling/date';
 import type { IsoDate, Minutes, NoSessionReason, Weekday } from '../scheduling/types';
 
 /**
@@ -55,7 +55,18 @@ function formatWeekdays(weekdays: Weekday[]): string {
 export const sv = {
   tabs: {
     next: 'Nästa pass',
+    week: 'Veckan',
     commitments: 'Åtaganden',
+  },
+
+  week: {
+    title: 'Veckan',
+    lead: 'Tryck på en dag för att ändra den.',
+    free: 'Hela dagen ledig.',
+    commitmentsLabel: 'Den här dagen',
+    noCommitments: 'Inget åtagande den här dagen.',
+    add: 'Lägg till åtagande',
+    close: 'Klar',
   },
 
   nextSession: {
@@ -184,6 +195,12 @@ export const sv = {
     short: weekdayShort,
     initials: weekdayInitials,
     format: formatWeekdays,
+  },
+
+  /** "Måndag 8" — veckodag och datum, som i en kalender. */
+  dayLabel(date: IsoDate): string {
+    const name = weekdayNames[weekdayOf(date) - 1]!;
+    return `${name[0]!.toUpperCase()}${name.slice(1)} ${dayOfMonth(date)}`;
   },
 
   /** "Idag", "Imorgon", annars veckodagen. */

@@ -32,10 +32,11 @@ export function ScreenHeader({ title, lead }: { title: string; lead?: string | u
   );
 }
 
-export type TabId = 'next' | 'commitments';
+export type TabId = 'next' | 'week' | 'commitments';
 
 const TABS: { id: TabId; label: string; icon: ReactNode }[] = [
   { id: 'next', label: strings.tabs.next, icon: <ClockIcon /> },
+  { id: 'week', label: strings.tabs.week, icon: <WeekIcon /> },
   { id: 'commitments', label: strings.tabs.commitments, icon: <BlocksIcon /> },
 ];
 
@@ -124,6 +125,17 @@ function ClockIcon() {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+    </svg>
+  );
+}
+
+function WeekIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3.5" y="5" width="17" height="15" rx="2.4" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M3.5 10h17" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M8 3.5V6M16 3.5V6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M8 14.5h5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
     </svg>
   );
 }

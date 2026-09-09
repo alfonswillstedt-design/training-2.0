@@ -59,3 +59,8 @@ export function fromIsoDate(iso: IsoDate): Date {
   const { year, month, day } = parse(iso);
   return new Date(year, month - 1, day);
 }
+
+/** Dagen i månaden, 1–31. */
+export function dayOfMonth(iso: IsoDate): number {
+  return parse(iso).day;
+}

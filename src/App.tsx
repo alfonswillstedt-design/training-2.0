@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { TabBar, type TabId } from './design';
 import { CommitmentsView } from './features/commitments/CommitmentsView';
 import { NextSessionView } from './features/next-session/NextSessionView';
+import { WeekView } from './features/week/WeekView';
 import { fromIsoDate, startOfWeek, toIsoDate, weekDates } from './scheduling/date';
 import { starterPlans } from './scheduling/defaults';
 import { planWeek } from './scheduling/planWeek';
@@ -70,7 +71,7 @@ export function App() {
 
   return (
     <>
-      {tab === 'next' ? (
+      {tab === 'next' && (
         <NextSessionView
           days={days}
           today={today}
@@ -82,7 +83,13 @@ export function App() {
           // Nås först när upplägget går att tömma, vilket det gör i steg 6.
           onChoosePlan={() => setTab('commitments')}
         />
-      ) : (
+      )}
+
+      {tab === 'week' && (
+        <WeekView days={days} today={today} commitments={commitments} onChange={setCommitments} />
+      )}
+
+      {tab === 'commitments' && (
         <CommitmentsView
           commitments={commitments}
           dates={dates}

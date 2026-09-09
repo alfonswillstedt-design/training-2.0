@@ -13,14 +13,16 @@ eller Strong, inte ersätta dem.
 
 ## Läge
 
-Steg 1–4 av 9 i byggordningen är klara: schemaläggningsmotorn med tester,
-flik 1 — Nästa pass — flik 3 — Åtaganden, och lagringen. Allt sparas i
-localStorage under en enda nyckel och läses tillbaka när appen öppnas.
-Data kan exporteras och importeras som JSON.
+Steg 1–5 av 9 i byggordningen är klara: schemaläggningsmotorn med tester,
+flik 1 — Nästa pass — flik 2 — Veckan — flik 3 — Åtaganden, och lagringen.
+Allt sparas i localStorage under en enda nyckel och läses tillbaka när appen
+öppnas, och kan exporteras och importeras som JSON.
 
-Flik 2 (Veckan) och flik 4 (Upplägg) finns inte än, så flikraden visar bara de
-två som är byggda. Tills Upplägg finns kör appen ett standardupplägg och
-standardinställningar.
+Flik 4 (Upplägg) finns inte än, så flikraden visar bara de tre som är byggda
+och appen kör ett standardupplägg med standardinställningar. Veckovyns
+signaturinteraktion — att markera upptagen tid direkt på dagen och se passet
+flytta sig live — kommer i steg 7. Dagarna ritas redan som proportionella
+spår, så den läggs ovanpå i stället för att ersätta något.
 
 ## Kommandon
 
