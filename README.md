@@ -13,10 +13,10 @@ eller Strong, inte ersätta dem.
 
 ## Läge
 
-Steg 1–3 av 9 i byggordningen är klara: schemaläggningsmotorn med tester,
-flik 1 — Nästa pass — och flik 3 — Åtaganden. Riktig data kan matas in och
-veckan räknas om vid varje ändring, men tillståndet lever bara i minnet.
-Lagringen kommer i steg 4.
+Steg 1–4 av 9 i byggordningen är klara: schemaläggningsmotorn med tester,
+flik 1 — Nästa pass — flik 3 — Åtaganden, och lagringen. Allt sparas i
+localStorage under en enda nyckel och läses tillbaka när appen öppnas.
+Data kan exporteras och importeras som JSON.
 
 Flik 2 (Veckan) och flik 4 (Upplägg) finns inte än, så flikraden visar bara de
 två som är byggda. Tills Upplägg finns kör appen ett standardupplägg och
@@ -36,6 +36,7 @@ npm run build     # typkontroll + produktionsbygge
 ```
 src/scheduling/    planWeek + typer — noll React-beroenden, avsedd att kunna
                    flyttas rakt över till en native-app
+src/storage/       localStorage, schemaVersion och migreringar, export/import
 src/strings/       allt synligt språk på ett ställe
 src/design/        typskala, färger, tidsformatering, skal och kontroller
 src/features/      en mapp per flik
@@ -48,6 +49,14 @@ Mobilen först, 390 px som mått. Ett typsnitt — Instrument Sans, självhostat
 appen fungerar i flygplansläge — där vikt och storlek är enda kontrastmedel.
 Exakt två hörnradier. Mörkt läge följer systemet och är ingen inställning.
 Klockslag sätts med tabulära siffror så de inte hoppar när de uppdateras.
+
+## Data
+
+Allt ligger under en enda localStorage-nyckel med ett `schemaVersion`-fält, och
+migreringsmaskineriet finns från dag ett — sparad data ska kunna lyftas till en
+ny version i stället för att raderas. Data som inte går att läsa läggs i
+karantän under en egen nyckel i stället för att skrivas över. Export och import
+som JSON är hela backup-lösningen, och vägen in i en framtida native-app.
 
 ### Motorn
 

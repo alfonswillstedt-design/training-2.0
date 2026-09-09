@@ -10,6 +10,11 @@ import type { IsoDate, Minutes, NoSessionReason, Weekday } from '../scheduling/t
  * röras.
  */
 
+/** "1 åtagande", "3 åtaganden". */
+function count(amount: number, one: string, many: string): string {
+  return `${amount} ${amount === 1 ? one : many}`;
+}
+
 const weekdayNames = [
   'måndag',
   'tisdag',
@@ -82,6 +87,34 @@ export const sv = {
     noSessionThisWeek: {
       title: 'Inget pass får plats den här veckan',
       body: 'Ändra ett åtagande, passlängden eller tiderna du vill träna mellan, så räknar appen om direkt.',
+    },
+  },
+
+  storage: {
+    unreadable:
+      'Sparad data gick inte att läsa och har lagts åt sidan i stället för att raderas. Appen startade tom.',
+    notSaving:
+      'Det går inte att spara i den här webbläsaren, så ändringarna försvinner när du stänger appen. Exportera en fil om du vill behålla dem.',
+  },
+
+  backup: {
+    title: 'Data',
+    lead: 'Allt ligger bara i den här webbläsaren. Exportera en fil om du vill kunna flytta datan eller få tillbaka den.',
+    export: 'Exportera till fil',
+    import: 'Läs in från fil',
+    filename: (today: IsoDate) => `traningsschema-${today}.json`,
+    confirmTitle: 'Ersätt allt du har nu?',
+    confirmBody: (commitments: number, sessions: number) =>
+      `Filen innehåller ${count(commitments, 'åtagande', 'åtaganden')} och ` +
+      `${count(sessions, 'loggat pass', 'loggade pass')}. Det du har nu skrivs över.`,
+    replace: 'Ersätt allt',
+    cancel: 'Avbryt',
+    failed: {
+      'invalid-json': 'Filen är inte en giltig JSON-fil.',
+      unreadable: 'Filen går inte att läsa som ett träningsschema. Ingenting har ändrats.',
+      'newer-version': 'Filen kommer från en nyare version av appen. Uppdatera appen först.',
+      'missing-migration':
+        'Filen kommer från en version appen inte kan läsa. Ingenting har ändrats.',
     },
   },
 

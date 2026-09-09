@@ -80,17 +80,14 @@ export type TrainingPlan =
   | { mode: 'weekly'; sessions: TrainingSession[]; bindings: WeekdayBinding[] };
 
 /**
- * Rotationsläget härleds alltid ur loggade pass — se `deriveRotationState`.
- * Räkna aldrig rotationen separat vid sidan av `CompletedSession`.
+ * Ett loggat pass. Enda källan till rotationsläget — räkna aldrig rotationen
+ * separat vid sidan av den här listan.
  */
 export interface CompletedSession {
   date: IsoDate;
   sessionId: string;
 }
 
-export interface RotationState {
-  lastCompletedSessionId: string | null;
-}
 
 // ---------------------------------------------------------------------------
 // Inställningar
@@ -227,7 +224,12 @@ export interface PlanWeekInput {
   commitments: Commitment[];
   preferences: Preferences;
   plan: TrainingPlan;
-  rotationState: RotationState;
+  /**
+   * Loggade pass, i eller före veckan. Motorn härleder rotationen själv:
+   * en dag som redan är loggad behåller sitt pass, och dagarna efter fortsätter
+   * rotationen därifrån.
+   */
+  completedSessions: CompletedSession[];
   /** Veckans första dag. Tolkas som lokal väggklocka, aldrig som UTC. */
   weekStarting: Date;
 }

@@ -1,6 +1,6 @@
 import { freeGaps, mergeBusy, resolveDay } from './commitments';
 import { addDays, toIsoDate, weekdayOf } from './date';
-import { nextSessionId } from './rotation';
+import { lastCompletedBefore, nextSessionId } from './rotation';
 import type {
   BusyBlock,
   IsoDate,
@@ -29,7 +29,7 @@ interface DayContext {
  * indata ger alltid samma utdata.
  */
 export function planWeek(input: PlanWeekInput): PlannedDay[] {
-  const { commitments, preferences, plan, rotationState, weekStarting } = input;
+  const { commitments, preferences, plan, completedSessions, weekStarting } = input;
 
   const firstDate = toIsoDate(weekStarting);
   const days: DayContext[] = Array.from({ length: DAYS_IN_WEEK }, (_, offset) => {
@@ -60,6 +60,14 @@ export function planWeek(input: PlanWeekInput): PlannedDay[] {
         )
       : null;
 
+  // Ett loggat pass är ett faktum. Dagen behåller sitt pass, blir aldrig
+  // vilodag, och rotationen fortsätter därifrån.
+  const loggedByDate = new Map<IsoDate, string>();
+  for (const done of completedSessions) {
+    // Sist tillagda vinner när två pass loggats samma dag.
+    if (sessionsById.has(done.sessionId)) loggedByDate.set(done.date, done.sessionId);
+  }
+
   // Steg 1: varje dag är antingen en kandidat (null) eller har redan ett skäl.
   const reasons: (NoSessionReason | null)[] = days.map((day) => {
     if (bindings && !bindings.has(day.weekday)) return { kind: 'no-session-for-weekday' };
@@ -73,8 +81,12 @@ export function planWeek(input: PlanWeekInput): PlannedDay[] {
     const candidates = reasons.flatMap((reason, index) => (reason === null ? [index] : []));
     if (candidates.length <= allowedTrainingDays) break;
 
-    let victim = candidates[0]!;
-    for (const index of candidates) {
+    // En dag som redan är genomförd går inte att göra till vilodag i efterhand.
+    const sacrificeable = candidates.filter((index) => !loggedByDate.has(days[index]!.date));
+    if (sacrificeable.length === 0) break;
+
+    let victim = sacrificeable[0]!;
+    for (const index of sacrificeable) {
       const theirs = slackAt(days, index);
       const best = slackAt(days, victim);
       // Minst marginal offras först. Vid lika vinner den senare veckodagen.
@@ -84,7 +96,7 @@ export function planWeek(input: PlanWeekInput): PlannedDay[] {
   }
 
   // Steg 3: fördela passen kronologiskt över de dagar som blev kvar.
-  let rotationCursor = rotationState.lastCompletedSessionId;
+  let rotationCursor = lastCompletedBefore(completedSessions, firstDate);
   let previousDaySessionId: string | null = null;
 
   return days.map((day, index) => {
@@ -94,11 +106,17 @@ export function planWeek(input: PlanWeekInput): PlannedDay[] {
       return finish(day, null, reason);
     }
 
-    const sessionId = bindings
-      ? bindings.get(day.weekday)!
-      : nextSessionId(plan.sessions, rotationCursor)!;
+    const logged = loggedByDate.get(day.date) ?? null;
+    const sessionId =
+      logged ??
+      (bindings ? bindings.get(day.weekday)! : nextSessionId(plan.sessions, rotationCursor)!);
 
-    if (preferences.rest.noSameSessionBackToBack && previousDaySessionId === sessionId) {
+    // Regeln kan inte ogöra ett pass som redan är genomfört.
+    if (
+      logged === null &&
+      preferences.rest.noSameSessionBackToBack &&
+      previousDaySessionId === sessionId
+    ) {
       // Rotationen står still — passet är inte avklarat, bara framflyttat.
       previousDaySessionId = null;
       return finish(day, null, { kind: 'rest-day', because: 'no-same-session-back-to-back' });

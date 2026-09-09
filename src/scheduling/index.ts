@@ -4,7 +4,7 @@
  */
 
 export { planWeek } from './planWeek';
-export { deriveRotationState, nextSessionId } from './rotation';
+export { lastCompletedBefore, nextSessionId } from './rotation';
 export { findWindow, type Placement, type WindowResult } from './window';
 export { freeGaps, mergeBusy, resolveDay, type BusyInterval, type FreeGap } from './commitments';
 export { addDays, fromIsoDate, startOfWeek, toIsoDate, weekDates, weekdayOf } from './date';

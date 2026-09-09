@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { planWeek } from '../../src/scheduling/planWeek';
 import { hhmm, toHhmm } from '../../src/scheduling/time';
-import type { Commitment, PlannedDay, Preferences, TrainingPlan } from '../../src/scheduling/types';
+import type {
+  Commitment,
+  CompletedSession,
+  PlannedDay,
+  Preferences,
+  TrainingPlan,
+} from '../../src/scheduling/types';
 import { MONDAY, basePreferences, frontBackPlan, gymAllWeek, school, work } from './fixtures';
 
 /**
@@ -16,13 +22,13 @@ function plan(
   commitments: Commitment[],
   preferences: Preferences,
   trainingPlan: TrainingPlan = frontBackPlan,
-  lastCompletedSessionId: string | null = null,
+  completedSessions: CompletedSession[] = [],
 ): PlannedDay[] {
   return planWeek({
     commitments,
     preferences,
     plan: trainingPlan,
-    rotationState: { lastCompletedSessionId },
+    completedSessions,
     weekStarting: MONDAY,
   });
 }
@@ -255,7 +261,10 @@ describe('veckobundet upplägg', () => {
 
 describe('rotationen', () => {
   it('fortsätter från det senast loggade passet', () => {
-    const days = plan([], prefs(), frontBackPlan, 'framsida');
+    // Söndagen före veckan, alltså 2025-08-31.
+    const days = plan([], prefs(), frontBackPlan, [
+      { date: '2025-08-31', sessionId: 'framsida' },
+    ]);
     expect(days[0]!.session!.sessionName).toBe('Baksida');
     expect(days[1]!.session!.sessionName).toBe('Framsida');
   });
@@ -312,7 +321,7 @@ describe('motorn är deterministisk', () => {
       commitments: [school],
       preferences: prefs(),
       plan: frontBackPlan,
-      rotationState: { lastCompletedSessionId: null },
+      completedSessions: [],
       weekStarting: new Date(2025, 2, 24),
     });
     expect(dstWeek.map((d) => d.date)).toEqual([
@@ -326,5 +335,77 @@ describe('motorn är deterministisk', () => {
     ]);
     expect(toHhmm(dstWeek[0]!.session!.start)).toBe('15:50');
     expect(toHhmm(dstWeek[6]!.session!.start)).toBe('09:00');
+  });
+});
+
+describe('loggade pass', () => {
+  const monday: CompletedSession = { date: '2025-09-01', sessionId: 'framsida' };
+
+  it('ändrar inte dagen som loggades', () => {
+    const before = plan([school], prefs());
+    const after = plan([school], prefs(), frontBackPlan, [monday]);
+
+    expect(after[0]!.session!.sessionName).toBe(before[0]!.session!.sessionName);
+    expect(after[0]!.session!.sessionName).toBe('Framsida');
+  });
+
+  it('för rotationen framåt för dagarna efter', () => {
+    const days = plan([school], prefs(), frontBackPlan, [monday]);
+    expect(days[1]!.session!.sessionName).toBe('Baksida');
+  });
+
+  it('kastar inte om resten av veckan när en dag loggas', () => {
+    const before = summary(plan([school], prefs()));
+    const after = summary(plan([school], prefs(), frontBackPlan, [monday]));
+    expect(after).toEqual(before);
+  });
+
+  it('behåller det loggade passet även om upplägget roterat vidare', () => {
+    // Loggat "Baksida" på en dag där rotationen annars gett "Framsida".
+    const days = plan([school], prefs(), frontBackPlan, [
+      { date: '2025-09-01', sessionId: 'baksida' },
+    ]);
+    expect(days[0]!.session!.sessionName).toBe('Baksida');
+    expect(days[1]!.session!.sessionName).toBe('Framsida');
+  });
+
+  it('gör aldrig en genomförd dag till vilodag i efterhand', () => {
+    // Utan loggning offras söndagen som vilodag.
+    const untouched = plan([], prefs());
+    expect(untouched[6]!.reason?.kind).toBe('rest-day');
+
+    const days = plan([], prefs(), frontBackPlan, [{ date: '2025-09-07', sessionId: 'framsida' }]);
+    expect(days[6]!.session).not.toBeNull();
+    expect(days.filter((day) => day.reason?.kind === 'rest-day')).toHaveLength(1);
+  });
+
+  it('låter inte regeln om samma pass två dagar i rad ogöra ett loggat pass', () => {
+    const days = plan(
+      [],
+      prefs({ rest: { minRestDays: 0, noSameSessionBackToBack: true } }),
+      { mode: 'rolling', sessions: [{ id: 'helkropp', name: 'Helkropp' }] },
+      [{ date: '2025-09-02', sessionId: 'helkropp' }],
+    );
+    expect(days[1]!.session!.sessionId).toBe('helkropp');
+  });
+
+  it('bortser från loggade pass som inte längre finns i upplägget', () => {
+    const days = plan([school], prefs(), frontBackPlan, [
+      { date: '2025-09-01', sessionId: 'borttaget' },
+    ]);
+    expect(summary(days)).toEqual(summary(plan([school], prefs())));
+  });
+
+  it('påverkas inte av pass loggade efter veckan', () => {
+    const days = plan([school], prefs(), frontBackPlan, [
+      { date: '2025-09-20', sessionId: 'baksida' },
+    ]);
+    expect(summary(days)).toEqual(summary(plan([school], prefs())));
+  });
+
+  it('är fortfarande deterministisk', () => {
+    expect(plan([school], prefs(), frontBackPlan, [monday])).toEqual(
+      plan([school], prefs(), frontBackPlan, [monday]),
+    );
   });
 });
