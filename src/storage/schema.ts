@@ -18,10 +18,12 @@ import type {
  * `schemaVersion` finns från dag ett så att framtida ändringar kan migreras i
  * stället för att radera användarens data.
  */
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export interface AppData {
   schemaVersion: number;
+  /** Sant när de första frågorna är besvarade. Styr om appen frågar dem. */
+  onboarded: boolean;
   commitments: Commitment[];
   plan: TrainingPlan;
   preferences: Preferences;
@@ -31,6 +33,7 @@ export interface AppData {
 export function emptyData(): AppData {
   return {
     schemaVersion: SCHEMA_VERSION,
+    onboarded: false,
     commitments: [],
     plan: { mode: 'rolling', sessions: [] },
     preferences: defaultPreferences(),
@@ -257,6 +260,7 @@ function completedSession(value: unknown): CompletedSession | null {
 export function parseAppData(value: unknown): AppData | null {
   if (!isRecord(value)) return null;
   if (typeof value['schemaVersion'] !== 'number') return null;
+  if (typeof value['onboarded'] !== 'boolean') return null;
   if (!Array.isArray(value['commitments']) || !Array.isArray(value['completedSessions'])) {
     return null;
   }
@@ -281,6 +285,7 @@ export function parseAppData(value: unknown): AppData | null {
 
   return {
     schemaVersion: value['schemaVersion'],
+    onboarded: value['onboarded'],
     commitments,
     plan: trainingPlan,
     preferences: prefs,

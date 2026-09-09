@@ -260,3 +260,58 @@ export function Toggle({
     </label>
   );
 }
+
+/** Ett tal man stegar i stället för att skriva. Snabbare med en tumme. */
+export function Stepper({
+  value,
+  onChange,
+  step,
+  min,
+  max,
+  format,
+  label,
+}: {
+  value: number;
+  onChange: (value: number) => void;
+  step: number;
+  min: number;
+  max: number;
+  format: (value: number) => string;
+  label: string;
+}) {
+  const clamp = (next: number) => Math.min(max, Math.max(min, next));
+
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-tight border border-line bg-raised px-3 py-2">
+      <StepButton label={`${label}, mindre`} sign="−" disabled={value <= min} onClick={() => onChange(clamp(value - step))} />
+      <span className="text-[16px] font-medium tabular-nums">{format(value)}</span>
+      <StepButton label={`${label}, mer`} sign="+" disabled={value >= max} onClick={() => onChange(clamp(value + step))} />
+    </div>
+  );
+}
+
+function StepButton({
+  label,
+  sign,
+  disabled,
+  onClick,
+}: {
+  label: string;
+  sign: string;
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      disabled={disabled}
+      onClick={onClick}
+      className={`size-11 shrink-0 rounded-tight text-[20px] leading-none ${
+        disabled ? 'text-ink-faint opacity-40' : 'text-ink'
+      }`}
+    >
+      {sign}
+    </button>
+  );
+}

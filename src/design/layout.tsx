@@ -32,12 +32,13 @@ export function ScreenHeader({ title, lead }: { title: string; lead?: string | u
   );
 }
 
-export type TabId = 'next' | 'week' | 'commitments';
+export type TabId = 'next' | 'week' | 'commitments' | 'plan';
 
 const TABS: { id: TabId; label: string; icon: ReactNode }[] = [
   { id: 'next', label: strings.tabs.next, icon: <ClockIcon /> },
   { id: 'week', label: strings.tabs.week, icon: <WeekIcon /> },
   { id: 'commitments', label: strings.tabs.commitments, icon: <BlocksIcon /> },
+  { id: 'plan', label: strings.tabs.plan, icon: <PlanIcon /> },
 ];
 
 export function TabBar({ active, onChange }: { active: TabId; onChange: (id: TabId) => void }) {
@@ -136,6 +137,20 @@ function WeekIcon() {
       <path d="M3.5 10h17" stroke="currentColor" strokeWidth="1.7" />
       <path d="M8 3.5V6M16 3.5V6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
       <path d="M8 14.5h5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PlanIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M5 7.5h6M5 12h9M5 16.5h4"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+      <circle cx="18" cy="16.5" r="2.6" stroke="currentColor" strokeWidth="1.7" />
     </svg>
   );
 }

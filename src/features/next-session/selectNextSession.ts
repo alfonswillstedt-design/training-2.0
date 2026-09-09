@@ -10,6 +10,12 @@ export interface NextUp {
   todayCompleted: boolean;
   /** Första passet som återstår, från och med nu. Null när veckan är slut. */
   next: TrainingDay | null;
+  /**
+   * Dagens pass som hunnit ta slut utan att loggas. Utan det här kan den som
+   * tränar på morgonen aldrig markera passet som gjort, och rotationen står
+   * still för alltid.
+   */
+  missedToday: PlannedSession | null;
 }
 
 function hasSession(day: PlannedDay): day is TrainingDay {
@@ -39,9 +45,14 @@ export function selectNextSession(
     return day.session === null || day.session.end > now;
   });
 
+  const todaySession = todayPlan !== null && hasSession(todayPlan) ? todayPlan.session : null;
+  const loggedToday = completedDates.has(today);
+
   return {
     today: todayPlan,
-    todayCompleted: todayPlan !== null && hasSession(todayPlan) && completedDates.has(today),
+    todayCompleted: todaySession !== null && loggedToday,
     next: remaining.find(hasSession) ?? null,
+    missedToday:
+      todaySession !== null && !loggedToday && todaySession.end <= now ? todaySession : null,
   };
 }

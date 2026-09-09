@@ -8,7 +8,11 @@
 export type Migration = (data: Record<string, unknown>) => Record<string, unknown>;
 
 /** Nyckeln är versionen man migrerar *från*. */
-export const migrations: Record<number, Migration> = {};
+export const migrations: Record<number, Migration> = {
+  // 1 → 2: `onboarded` tillkom när de första frågorna byggdes. Den som redan
+  // har sparad data har uppenbart använt appen, så frågorna ska inte ställas.
+  1: (data) => ({ ...data, onboarded: true }),
+};
 
 export type MigrationFailure = 'unreadable' | 'newer-version' | 'missing-migration';
 

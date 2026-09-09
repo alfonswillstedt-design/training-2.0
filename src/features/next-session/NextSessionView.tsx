@@ -29,7 +29,12 @@ export function NextSessionView({
   onComplete,
   onChoosePlan,
 }: NextSessionViewProps) {
-  const { today: todayPlan, todayCompleted, next } = selectNextSession(days, today, completedDates, now);
+  const { today: todayPlan, todayCompleted, next, missedToday } = selectNextSession(
+    days,
+    today,
+    completedDates,
+    now,
+  );
 
   if (days.length > 0 && days.every((day) => day.reason?.kind === 'no-plan')) {
     return (
@@ -71,6 +76,21 @@ export function NextSessionView({
 
   return (
     <Screen>
+      {missedToday && (
+        <div className="mb-7 rounded-tight bg-accent-wash px-4 py-3.5">
+          <p className="text-[14px] leading-snug text-ink">
+            {strings.nextSession.missed(missedToday.start)}
+          </p>
+          <button
+            type="button"
+            onClick={() => onComplete(missedToday.sessionId)}
+            className="mt-2 min-h-11 text-[15px] font-semibold text-accent"
+          >
+            {strings.nextSession.confirmMissed}
+          </button>
+        </div>
+      )}
+
       {todayNote && <TodayNote>{todayNote}</TodayNote>}
 
       {/* Svaret ligger i skärmens optiska mitt, inte klistrat mot överkanten. */}

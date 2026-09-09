@@ -4,6 +4,7 @@ export {
   Button,
   ChipGroup,
   Field,
+  Stepper,
   TextField,
   TimeField,
   TimeRange,

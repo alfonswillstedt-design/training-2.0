@@ -57,6 +57,7 @@ export const sv = {
     next: 'Nästa pass',
     week: 'Veckan',
     commitments: 'Åtaganden',
+    plan: 'Upplägg',
   },
 
   week: {
@@ -73,6 +74,8 @@ export const sv = {
     eyebrow: 'Nästa pass',
     endsAt: (end: Minutes) => `Slutar ${clock(end)}`,
     complete: 'Klar med passet',
+    missed: (start: Minutes) => `Tränade du ${clock(start)}-passet?`,
+    confirmMissed: 'Ja, jag tränade',
   },
 
   holdPoints: {
@@ -126,6 +129,75 @@ export const sv = {
       'newer-version': 'Filen kommer från en nyare version av appen. Uppdatera appen först.',
       'missing-migration':
         'Filen kommer från en version appen inte kan läsa. Ingenting har ändrats.',
+    },
+  },
+
+  plan: {
+    title: 'Upplägg',
+    lead: 'Vilka pass du kör, och i vilken ordning.',
+    modeLabel: 'Läge',
+    rolling: 'Rullande',
+    weekly: 'Veckobundet',
+    rollingHelp: 'Passen roterar i ordning, oavsett veckodag.',
+    weeklyHelp:
+      'Bestämda pass på bestämda veckodagar. Du väljer vilket pass som hör till dagen — appen räknar fortfarande ut tiden själv, och säger ifrån om dagen saknar fönster.',
+    sessionsLabel: 'Pass',
+    addSession: 'Lägg till pass',
+    sessionPlaceholder: 'Namn på passet',
+    bindingsLabel: 'Vilket pass på vilken dag',
+    unbound: 'Inget',
+    starterLabel: 'Börja från ett färdigt upplägg',
+    openSettings: 'Inställningar',
+    moveUp: 'Flytta upp',
+    moveDown: 'Flytta ner',
+    removeSession: 'Ta bort passet',
+    empty: {
+      title: 'Vilka pass kör du?',
+      body: 'Börja från ett färdigt upplägg och ändra fritt, eller skriv in ditt eget. Har du fått ett av en PT skriver du in det som det är.',
+    },
+  },
+
+  settings: {
+    title: 'Inställningar',
+    done: 'Klar',
+    sessionLength: 'Passets längd',
+    travelTo: 'Restid till gymmet',
+    travelFrom: 'Restid hem',
+    travelMode: 'Färdsätt',
+    travelModes: { walk: 'Gå', bike: 'Cykel', transit: 'Kollektivt', car: 'Bil' },
+    windowLabel: 'När du vill träna',
+    earliest: 'Tidigast',
+    latest: 'Senast klar',
+    gymLabel: 'Gymmets öppettider',
+    open: 'Öppet',
+    closed: 'Stängt',
+    mealLabel: 'Mat före passet',
+    mealOn: 'Räkna med tid att äta',
+    mealHelp: 'Gäller de åtaganden du markerat att du måste äta efter.',
+    mealDuration: 'Tid att äta',
+    pwoLabel: 'PWO',
+    pwoModes: { off: 'Ingen', before: 'Före passet', during: 'Under passet' },
+    pwoMargin: 'Minuter före passet',
+    restLabel: 'Vilodagar',
+    minRestDays: 'Minst antal vilodagar i veckan',
+    noSameSessionBackToBack: 'Aldrig samma pass två dagar i rad',
+    minutes: (amount: number) => `${amount} min`,
+    days: (amount: number) => count(amount, 'dag', 'dagar'),
+  },
+
+  onboarding: {
+    next: 'Nästa',
+    start: 'Sätt igång',
+    ownPlan: 'Skriv in eget upplägg',
+    questions: {
+      plan: 'Vilket upplägg kör du?',
+      length: 'Hur långt är ett pass?',
+      travel: 'Hur tar du dig till gymmet?',
+      window: 'När på dygnet vill du träna?',
+    },
+    help: {
+      travel: 'Restiden räknas åt båda hållen när appen letar efter en lucka.',
+      window: 'Appen lägger passet så tidigt den kan inom det här spannet.',
     },
   },
 

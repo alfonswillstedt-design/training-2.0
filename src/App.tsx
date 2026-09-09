@@ -1,34 +1,30 @@
 import { useEffect, useMemo, useState } from 'react';
 import { TabBar, type TabId } from './design';
+import { BackupSection } from './features/backup/BackupSection';
 import { CommitmentsView } from './features/commitments/CommitmentsView';
 import { NextSessionView } from './features/next-session/NextSessionView';
+import { Onboarding } from './features/plan/Onboarding';
+import { PlanView } from './features/plan/PlanView';
+import { SettingsSheet } from './features/plan/SettingsSheet';
 import { WeekView } from './features/week/WeekView';
 import { fromIsoDate, startOfWeek, toIsoDate, weekDates } from './scheduling/date';
-import { starterPlans } from './scheduling/defaults';
 import { planWeek } from './scheduling/planWeek';
-import type { Commitment, CompletedSession } from './scheduling/types';
+import type { Commitment, CompletedSession, Preferences, TrainingPlan } from './scheduling/types';
 import { load, save, type AppData } from './storage';
 import { strings } from './strings';
-import { BackupSection } from './features/backup/BackupSection';
 
 /**
- * Steg 4: allt sparas i localStorage under en enda nyckel och läses tillbaka
- * när appen öppnas. Ingen spara-knapp — varje ändring skrivs direkt.
+ * Steg 6: upplägget och inställningarna är valbara, och första besöket går
+ * rakt in i fyra frågor ställda i appens riktiga UI.
  */
-
-// Tills flik 4 finns kör appen ett standardupplägg. Steg 6 gör det valbart.
-const STARTER_PLAN = starterPlans.find((starter) => starter.id === 'framsida-baksida')!.plan;
-
 export function App() {
   const [tab, setTab] = useState<TabId>('next');
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Läses en gång. Gick sparad data inte att läsa startar appen tom, men
-  // säger ifrån — och den olässbara datan ligger kvar i karantän.
+  // säger ifrån — och den oläsbara datan ligger kvar i karantän.
   const [initial] = useState(() => load(window.localStorage));
-  const [data, setData] = useState<AppData>(() => ({
-    ...initial.data,
-    plan: initial.data.plan.sessions.length > 0 ? initial.data.plan : STARTER_PLAN,
-  }));
+  const [data, setData] = useState<AppData>(initial.data);
   const [saving, setSaving] = useState(true);
 
   useEffect(() => {
@@ -41,6 +37,9 @@ export function App() {
     setData((current) => ({ ...current, commitments: next }));
   const setCompletedSessions = (next: CompletedSession[]) =>
     setData((current) => ({ ...current, completedSessions: next }));
+  const setPlan = (next: TrainingPlan) => setData((current) => ({ ...current, plan: next }));
+  const patchPreferences = (patch: Partial<Preferences>) =>
+    setData((current) => ({ ...current, preferences: { ...current.preferences, ...patch } }));
 
   // Klockan läses när appen monteras. Den tickar inte — appen öppnas, svarar
   // och stängs igen.
@@ -69,6 +68,18 @@ export function App() {
     [completedSessions],
   );
 
+  // Första besöket går rakt in i frågorna — ingen karusell, ingen flikrad.
+  if (!data.onboarded) {
+    return (
+      <Onboarding
+        preferences={preferences}
+        onChangePreferences={patchPreferences}
+        onChangePlan={setPlan}
+        onDone={() => setData((current) => ({ ...current, onboarded: true }))}
+      />
+    );
+  }
+
   return (
     <>
       {tab === 'next' && (
@@ -80,8 +91,7 @@ export function App() {
           onComplete={(sessionId) =>
             setCompletedSessions([...completedSessions, { date: today, sessionId }])
           }
-          // Nås först när upplägget går att tömma, vilket det gör i steg 6.
-          onChoosePlan={() => setTab('commitments')}
+          onChoosePlan={() => setTab('plan')}
         />
       )}
 
@@ -102,11 +112,23 @@ export function App() {
                 ? undefined
                 : strings.storage.notSaving
           }
-          footer={<BackupSection data={data} today={today} onReplace={setData} />}
         />
       )}
 
+      {tab === 'plan' && (
+        <PlanView plan={plan} onChange={setPlan} onOpenSettings={() => setSettingsOpen(true)} />
+      )}
+
       <TabBar active={tab} onChange={setTab} />
+
+      {settingsOpen && (
+        <SettingsSheet
+          preferences={preferences}
+          onChange={patchPreferences}
+          onClose={() => setSettingsOpen(false)}
+          footer={<BackupSection data={data} today={today} onReplace={setData} />}
+        />
+      )}
     </>
   );
 }

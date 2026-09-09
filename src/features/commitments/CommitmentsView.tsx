@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { Button, clockRange, EmptyState, Screen, ScreenHeader } from '../../design';
 import type { Commitment, CommitmentException, IsoDate } from '../../scheduling/types';
 import { strings } from '../../strings';
@@ -27,7 +27,6 @@ export function CommitmentsView({
   today,
   onChange,
   note,
-  footer,
 }: {
   commitments: Commitment[];
   dates: IsoDate[];
@@ -35,8 +34,6 @@ export function CommitmentsView({
   onChange: (next: Commitment[]) => void;
   /** Besked om lagringen, när den inte beter sig som den ska. */
   note?: string | undefined;
-  /** Sist på sidan. Här bor export och import tills Inställningar finns. */
-  footer?: ReactNode | undefined;
 }) {
   const [draft, setDraft] = useState<Commitment | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -136,8 +133,6 @@ export function CommitmentsView({
             </Section>
           </>
         )}
-
-        {footer}
       </Screen>
 
       {draft && (

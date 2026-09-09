@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { defaultPreferences } from '../../src/scheduling/defaults';
 import { runMigrations, type Migration } from '../../src/storage/migrate';
+import { parseAppData, SCHEMA_VERSION } from '../../src/storage/schema';
 
 const steps: Record<number, Migration> = {
   1: (data) => ({ ...data, tillagd: 'i två' }),
@@ -46,5 +48,31 @@ describe('runMigrations', () => {
     const input = { schemaVersion: 1 };
     runMigrations(input, 3, steps);
     expect(input).toEqual({ schemaVersion: 1 });
+  });
+});
+
+describe('de riktiga migreringarna', () => {
+  it('lyfter version 1 till nuvarande schema', () => {
+    const v1 = {
+      schemaVersion: 1,
+      commitments: [],
+      plan: { mode: 'rolling', sessions: [] },
+      preferences: defaultPreferences(),
+      completedSessions: [],
+    };
+
+    const result = runMigrations(v1, SCHEMA_VERSION);
+    expect(result.ok).toBe(true);
+    expect(parseAppData(result.ok ? result.data : null)).not.toBeNull();
+  });
+
+  it('antar att den som redan har sparad data har använt appen', () => {
+    const result = runMigrations({ schemaVersion: 1 }, 2);
+    expect(result.ok && result.data['onboarded']).toBe(true);
+  });
+
+  it('lämnar ny data i fred', () => {
+    const result = runMigrations({ schemaVersion: 2, onboarded: false }, 2);
+    expect(result.ok && result.data['onboarded']).toBe(false);
   });
 });

@@ -115,3 +115,26 @@ describe('selectNextSession och klockan', () => {
     expect(selectNextSession(week, '2025-09-02', new Set(), after).next?.date).toBe('2025-09-03');
   });
 });
+
+describe('pass som hunnit passera', () => {
+  it('erbjuds för loggning i efterhand', () => {
+    const result = selectNextSession(week, '2025-09-01', new Set(), hhmm('18:00'));
+    expect(result.missedToday?.sessionName).toBe('Framsida');
+    // Det räknas ändå inte som nästa pass — det ligger bakåt i tiden.
+    expect(result.next?.date).toBe('2025-09-03');
+  });
+
+  it('erbjuds inte medan passet fortfarande pågår', () => {
+    expect(selectNextSession(week, '2025-09-01', new Set(), hhmm('16:30')).missedToday).toBeNull();
+  });
+
+  it('erbjuds inte när passet redan är loggat', () => {
+    const result = selectNextSession(week, '2025-09-01', new Set(['2025-09-01']), hhmm('18:00'));
+    expect(result.missedToday).toBeNull();
+    expect(result.todayCompleted).toBe(true);
+  });
+
+  it('erbjuds inte på en dag utan pass', () => {
+    expect(selectNextSession(week, '2025-09-02', new Set(), hhmm('23:00')).missedToday).toBeNull();
+  });
+});
