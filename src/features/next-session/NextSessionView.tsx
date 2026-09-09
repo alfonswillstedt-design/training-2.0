@@ -1,4 +1,4 @@
-import { clock, duration } from '../../design/time';
+import { clock, duration, EmptyState, Screen } from '../../design';
 import type { IsoDate, Minutes, PlannedDay, PlannedSession } from '../../scheduling/types';
 import { strings } from '../../strings';
 import { selectNextSession } from './selectNextSession';
@@ -6,6 +6,8 @@ import { selectNextSession } from './selectNextSession';
 export interface NextSessionViewProps {
   days: PlannedDay[];
   today: IsoDate;
+  /** Minuter från midnatt just nu, så ett passerat pass inte visas som nästa. */
+  now: Minutes;
   /** Datum där passet redan är avklarat. */
   completedDates: ReadonlySet<IsoDate>;
   onComplete: (sessionId: string) => void;
@@ -22,11 +24,12 @@ export interface NextSessionViewProps {
 export function NextSessionView({
   days,
   today,
+  now,
   completedDates,
   onComplete,
   onChoosePlan,
 }: NextSessionViewProps) {
-  const { today: todayPlan, todayCompleted, next } = selectNextSession(days, today, completedDates);
+  const { today: todayPlan, todayCompleted, next } = selectNextSession(days, today, completedDates, now);
 
   if (days.length > 0 && days.every((day) => day.reason?.kind === 'no-plan')) {
     return (
@@ -108,15 +111,6 @@ export function NextSessionView({
   );
 }
 
-/** Mobilen först: 390 px är måttet, allt annat skalar uppåt. */
-function Screen({ children }: { children: React.ReactNode }) {
-  return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col px-6 pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-      {children}
-    </main>
-  );
-}
-
 function TodayNote({
   children,
   className = 'mb-7',
@@ -190,36 +184,5 @@ function HoldPoints({ session }: { session: PlannedSession }) {
         </li>
       ))}
     </ol>
-  );
-}
-
-function EmptyState({
-  title,
-  body,
-  action,
-  onAction,
-  children,
-}: {
-  title: string;
-  body: string;
-  action?: string;
-  onAction?: () => void;
-  children?: React.ReactNode;
-}) {
-  return (
-    <section className="flex flex-1 flex-col justify-center">
-      <h1 className="text-[30px] leading-[1.1] font-semibold tracking-[-0.025em]">{title}</h1>
-      <p className="mt-4 text-[16px] leading-relaxed text-ink-soft">{body}</p>
-      {children}
-      {action && onAction && (
-        <button
-          type="button"
-          onClick={onAction}
-          className="mt-7 w-full rounded-tight bg-accent px-5 py-4 text-[16px] font-semibold text-accent-ink active:scale-[0.99]"
-        >
-          {action}
-        </button>
-      )}
-    </section>
   );
 }

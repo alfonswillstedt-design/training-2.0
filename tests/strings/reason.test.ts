@@ -88,3 +88,33 @@ describe('relativa dagnamn', () => {
     expect(strings.relativeDay('2025-10-01', '2025-09-30')).toBe('Imorgon');
   });
 });
+
+describe('veckodagar i text', () => {
+  const format = strings.weekdays.format;
+
+  it('slår ihop tre eller fler dagar i följd till ett spann', () => {
+    expect(format([1, 2, 3, 4, 5])).toBe('mån–fre');
+    expect(format([3, 4, 5])).toBe('ons–fre');
+  });
+
+  it('räknar upp två dagar i följd i stället för att spänna över dem', () => {
+    expect(format([6, 7])).toBe('lör, sön');
+  });
+
+  it('räknar upp dagar som inte hänger ihop', () => {
+    expect(format([1, 3, 5])).toBe('mån, ons, fre');
+  });
+
+  it('blandar spann och lösa dagar', () => {
+    expect(format([1, 2, 3, 7])).toBe('mån–ons, sön');
+  });
+
+  it('sorterar och tar bort dubbletter', () => {
+    expect(format([5, 1, 1, 3])).toBe('mån, ons, fre');
+  });
+
+  it('har egna ord för ytterlägena', () => {
+    expect(format([1, 2, 3, 4, 5, 6, 7])).toBe('varje dag');
+    expect(format([])).toBe('inga fasta dagar');
+  });
+});

@@ -13,12 +13,14 @@ eller Strong, inte ersätta dem.
 
 ## Läge
 
-Steg 1–2 av 9 i byggordningen är klara: schemaläggningsmotorn med tester, och
-flik 1 — Nästa pass — mot hårdkodad testdata. Ingen lagring, inga flikar än.
+Steg 1–3 av 9 i byggordningen är klara: schemaläggningsmotorn med tester,
+flik 1 — Nästa pass — och flik 3 — Åtaganden. Riktig data kan matas in och
+veckan räknas om vid varje ändring, men tillståndet lever bara i minnet.
+Lagringen kommer i steg 4.
 
-I dev-bygget ligger en scenarioväljare under vyn som visar varje tillstånd:
-skoldag, efter jobbet, vilodag, PWO före passet, dag som inte går ihop, och de
-två tomma tillstånden.
+Flik 2 (Veckan) och flik 4 (Upplägg) finns inte än, så flikraden visar bara de
+två som är byggda. Tills Upplägg finns kör appen ett standardupplägg och
+standardinställningar.
 
 ## Kommandon
 
@@ -34,8 +36,8 @@ npm run build     # typkontroll + produktionsbygge
 ```
 src/scheduling/    planWeek + typer — noll React-beroenden, avsedd att kunna
                    flyttas rakt över till en native-app
-src/design/        typskala, färger, tidsformatering
 src/strings/       allt synligt språk på ett ställe
+src/design/        typskala, färger, tidsformatering, skal och kontroller
 src/features/      en mapp per flik
 tests/             testerna, skrivna före koden de täcker
 ```

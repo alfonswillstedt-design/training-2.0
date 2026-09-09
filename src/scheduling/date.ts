@@ -40,3 +40,22 @@ export function weekdayOf(iso: IsoDate): Weekday {
   const sundayFirst = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
   return (sundayFirst === 0 ? 7 : sundayFirst) as Weekday;
 }
+
+/** Måndagen i samma vecka som `iso`. Veckan börjar alltid på måndag. */
+export function startOfWeek(iso: IsoDate): IsoDate {
+  return addDays(iso, 1 - weekdayOf(iso));
+}
+
+/** De sju datumen i veckan som börjar på `startIso`. */
+export function weekDates(startIso: IsoDate): IsoDate[] {
+  return Array.from({ length: 7 }, (_, offset) => addDays(startIso, offset));
+}
+
+/**
+ * Ett lokalt Date för ett datum, utan klockslag. Motsatsen till `toIsoDate`
+ * och den enda andra punkten där motorn rör ett Date-objekt.
+ */
+export function fromIsoDate(iso: IsoDate): Date {
+  const { year, month, day } = parse(iso);
+  return new Date(year, month - 1, day);
+}

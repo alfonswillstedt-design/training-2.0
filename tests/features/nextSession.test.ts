@@ -88,3 +88,30 @@ describe('selectNextSession', () => {
     expect(result.todayCompleted).toBe(false);
   });
 });
+
+describe('selectNextSession och klockan', () => {
+  // Passen i fixturen ligger 15:50–17:20.
+  const before = hhmm('09:00');
+  const during = hhmm('16:30');
+  const after = hhmm('18:00');
+
+  it('visar dagens pass innan det har börjat', () => {
+    expect(selectNextSession(week, '2025-09-01', new Set(), before).next?.date).toBe('2025-09-01');
+  });
+
+  it('visar ett pågående pass — den som är mitt i det vill se sina tider', () => {
+    expect(selectNextSession(week, '2025-09-01', new Set(), during).next?.date).toBe('2025-09-01');
+  });
+
+  it('går vidare när dagens pass är slut', () => {
+    expect(selectNextSession(week, '2025-09-01', new Set(), after).next?.date).toBe('2025-09-03');
+  });
+
+  it('låter klockan bara påverka idag, aldrig kommande dagar', () => {
+    expect(selectNextSession(week, '2025-09-03', new Set(), after).next?.date).toBe('2025-09-04');
+  });
+
+  it('räknar dagens pass som passerat även om dagen saknar pass', () => {
+    expect(selectNextSession(week, '2025-09-02', new Set(), after).next?.date).toBe('2025-09-03');
+  });
+});

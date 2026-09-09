@@ -1,6 +1,6 @@
 import { clock, clockRange, duration } from '../design/time';
 import { addDays, weekdayOf } from '../scheduling/date';
-import type { IsoDate, NoSessionReason } from '../scheduling/types';
+import type { IsoDate, Minutes, NoSessionReason, Weekday } from '../scheduling/types';
 
 /**
  * Allt synligt språk på ett ställe.
@@ -20,10 +20,42 @@ const weekdayNames = [
   'söndag',
 ] as const;
 
+const weekdayShort = ['mån', 'tis', 'ons', 'tors', 'fre', 'lör', 'sön'] as const;
+
+/** Två bokstäver räcker på en chip, en bokstav är tvetydig på svenska. */
+const weekdayInitials = ['Må', 'Ti', 'On', 'To', 'Fr', 'Lö', 'Sö'] as const;
+
+/** "mån–fre", "tis", "mån, ons, fre" — löpande dagar slås ihop. */
+function formatWeekdays(weekdays: Weekday[]): string {
+  const sorted = [...new Set(weekdays)].sort((a, b) => a - b);
+  if (sorted.length === 0) return 'inga fasta dagar';
+  if (sorted.length === 7) return 'varje dag';
+
+  const runs: Weekday[][] = [];
+  for (const day of sorted) {
+    const run = runs[runs.length - 1];
+    if (run && day === run[run.length - 1]! + 1) run.push(day);
+    else runs.push([day]);
+  }
+
+  return runs
+    .map((run) =>
+      run.length >= 3
+        ? `${weekdayShort[run[0]! - 1]}–${weekdayShort[run[run.length - 1]! - 1]}`
+        : run.map((day) => weekdayShort[day - 1]).join(', '),
+    )
+    .join(', ');
+}
+
 export const sv = {
+  tabs: {
+    next: 'Nästa pass',
+    commitments: 'Åtaganden',
+  },
+
   nextSession: {
     eyebrow: 'Nästa pass',
-    endsAt: (end: number) => `Slutar ${clock(end)}`,
+    endsAt: (end: Minutes) => `Slutar ${clock(end)}`,
     complete: 'Klar med passet',
   },
 
@@ -51,6 +83,74 @@ export const sv = {
       title: 'Inget pass får plats den här veckan',
       body: 'Ändra ett åtagande, passlängden eller tiderna du vill träna mellan, så räknar appen om direkt.',
     },
+  },
+
+  timeField: {
+    from: 'Från',
+    to: 'Till',
+    hour: 'timme',
+    minute: 'minut',
+  },
+
+  commitments: {
+    title: 'Åtaganden',
+    lead: 'Det som tar upp tid.',
+    recurring: 'Återkommande',
+    thisWeek: 'Den här veckan',
+    add: 'Lägg till åtagande',
+    addException: 'Lägg till undantag',
+    mealAfterBadge: 'Mat efter',
+    noExceptions: 'Inga undantag den här veckan.',
+    empty: {
+      title: 'Vad tar upp din tid?',
+      body: 'Lägg in skola, jobb, pendling, hämtningar — det som ligger fast. Appen räknar ut när träningen får plats däremellan.',
+      action: 'Lägg till åtagande',
+    },
+  },
+
+  commitmentEditor: {
+    newTitle: 'Nytt åtagande',
+    editTitle: 'Ändra åtagande',
+    done: 'Klar',
+    cancel: 'Avbryt',
+    remove: 'Ta bort åtagande',
+    nameLabel: 'Namn',
+    namePlaceholder: 'Skola, jobb, hämta Elsa …',
+    daysLabel: 'Dagar',
+    timeLabel: 'Tid',
+    mealLabel: 'Jag måste hinna äta efter det här innan jag kan träna',
+    mealHelp: 'Gäller typiskt efter ett arbetspass. Från skolan går de flesta direkt till gymmet.',
+    create: 'Lägg till åtagande',
+    endBeforeStart: 'Sluttiden måste vara efter starttiden.',
+  },
+
+  exceptionEditor: {
+    title: 'Undantag den här veckan',
+    lead: 'Gäller bara den här veckan och ändrar inte det återkommande.',
+    whichLabel: 'Vilket åtagande',
+    kindLabel: 'Vad händer',
+    dayLabel: 'Dag',
+    off: 'Ledigt',
+    moved: 'Annan tid',
+    extra: 'Extra pass',
+    timeLabel: 'Tid',
+    create: 'Lägg till undantag',
+    remove: 'Ta bort',
+    noDaysForKind: 'Åtagandet återkommer inte någon dag den här veckan, så det finns inget att ställa in eller flytta.',
+  },
+
+  /** Beskriver ett undantag i listan: "Inställt", "Flyttat till 16:00–18:00". */
+  exception(kind: 'off' | 'moved' | 'extra', start?: Minutes, end?: Minutes): string {
+    if (kind === 'off') return 'Inställt';
+    const when = clockRange(start ?? 0, end ?? 0);
+    return kind === 'moved' ? `Flyttat till ${when}` : `Extra pass ${when}`;
+  },
+
+  weekdays: {
+    long: weekdayNames,
+    short: weekdayShort,
+    initials: weekdayInitials,
+    format: formatWeekdays,
   },
 
   /** "Idag", "Imorgon", annars veckodagen. */

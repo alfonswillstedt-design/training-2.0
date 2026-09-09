@@ -1,4 +1,4 @@
-import type { IsoDate, PlannedDay, PlannedSession } from '../../scheduling/types';
+import type { IsoDate, Minutes, PlannedDay, PlannedSession } from '../../scheduling/types';
 
 /** En dag som faktiskt fick ett pass. */
 export type TrainingDay = PlannedDay & { session: PlannedSession };
@@ -8,7 +8,7 @@ export interface NextUp {
   today: PlannedDay | null;
   /** Sant när dagens pass redan är avklarat. */
   todayCompleted: boolean;
-  /** Första passet som återstår, från och med idag. Null när veckan är slut. */
+  /** Första passet som återstår, från och med nu. Null när veckan är slut. */
   next: TrainingDay | null;
 }
 
@@ -21,20 +21,27 @@ function hasSession(day: PlannedDay): day is TrainingDay {
  * själv, och logiken ska gå att testa utan att rendera något.
  *
  * ISO-datum jämförs som strängar, vilket är samma sak som kronologiskt.
+ *
+ * Ett pass som redan är slut är inte längre nästa pass. Ett pågående pass är
+ * det däremot — den som är mitt i det vill fortfarande se sina tider.
  */
 export function selectNextSession(
   days: PlannedDay[],
   today: IsoDate,
   completedDates: ReadonlySet<IsoDate> = new Set(),
+  now: Minutes = 0,
 ): NextUp {
   const todayPlan = days.find((day) => day.date === today) ?? null;
+
+  const remaining = days.filter((day) => {
+    if (day.date < today || completedDates.has(day.date)) return false;
+    if (day.date > today) return true;
+    return day.session === null || day.session.end > now;
+  });
 
   return {
     today: todayPlan,
     todayCompleted: todayPlan !== null && hasSession(todayPlan) && completedDates.has(today),
-    next:
-      days
-        .filter((day) => day.date >= today && !completedDates.has(day.date))
-        .find(hasSession) ?? null,
+    next: remaining.find(hasSession) ?? null,
   };
 }

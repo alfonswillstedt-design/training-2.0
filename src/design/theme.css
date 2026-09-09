@@ -19,6 +19,9 @@
   --accent: #d14808;
   --accent-ink: #ffffff;
   --accent-wash: #fbeee6;
+
+  /* Flikradens höjd, utan safe-area. Innehållsytan reserverar den. */
+  --tabbar-height: 3.5rem;
 }
 
 @media (prefers-color-scheme: dark) {
