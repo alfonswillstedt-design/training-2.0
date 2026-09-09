@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button, Field, Screen, Stepper, TimeField } from '../../design';
 import { ChipGroup } from '../../design';
-import { starterPlans } from '../../scheduling/defaults';
+import { StarterPicker } from './StarterPicker';
 import type { Preferences, TrainingPlan, TravelMode } from '../../scheduling/types';
 import { strings } from '../../strings';
 
@@ -43,24 +43,16 @@ export function Onboarding({
         </h1>
 
         {step === 0 && (
-          <div className="flex flex-col gap-2">
-            {starterPlans.map((starter) => (
-              <Button
-                key={starter.id}
-                variant="quiet"
-                onClick={() => {
-                  onChangePlan(starter.plan);
-                  setStep(1);
-                }}
-              >
-                {starter.name}
-              </Button>
-            ))}
-            <div className="mt-4">
-              <Button variant="quiet" onClick={() => setStep(1)}>
-                {strings.onboarding.ownPlan}
-              </Button>
-            </div>
+          <div className="flex flex-col gap-4">
+            <StarterPicker
+              onPick={(plan) => {
+                onChangePlan(plan);
+                setStep(1);
+              }}
+            />
+            <Button variant="quiet" onClick={() => setStep(1)}>
+              {strings.onboarding.ownPlan}
+            </Button>
           </div>
         )}
 

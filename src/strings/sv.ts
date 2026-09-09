@@ -147,6 +147,17 @@ export const sv = {
     bindingsLabel: 'Vilket pass på vilken dag',
     unbound: 'Inget',
     starterLabel: 'Börja från ett färdigt upplägg',
+    /** Etiketterna i väljaren. Passnamnen är utsäde och ligger i defaults. */
+    starters: {
+      helkropp: 'Helkropp',
+      'push-pull': 'Push / pull',
+      'over-under': 'Överkropp / underkropp',
+      'framsida-baksida': 'Framsida / baksida',
+      'push-pull-ben': 'Push / pull / ben',
+      arnold: 'Arnold-split',
+      fyrdelad: 'Fyrdelad',
+      kroppsdelar: 'Kroppsdelsdelad',
+    } as Record<string, string>,
     openSettings: 'Inställningar',
     moveUp: 'Flytta upp',
     moveDown: 'Flytta ner',

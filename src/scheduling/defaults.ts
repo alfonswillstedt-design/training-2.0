@@ -31,47 +31,40 @@ export function defaultPreferences(): Preferences {
   };
 }
 
-/** Färdiga upplägg användaren kan börja från och sedan ändra fritt. */
-export const starterPlans: { id: string; name: string; plan: TrainingPlan }[] = [
-  {
-    id: 'helkropp',
-    name: 'Helkropp',
-    plan: { mode: 'rolling', sessions: [{ id: 'helkropp', name: 'Helkropp' }] },
-  },
-  {
-    id: 'over-under',
-    name: 'Överkropp / underkropp',
+/**
+ * Färdiga upplägg att börja från och sedan ändra fritt.
+ *
+ * Passnamnen är utsäde: i samma stund användaren väljer ett upplägg blir de
+ * hens egna och går att döpa om. Etiketten i väljaren är däremot rent
+ * gränssnitt och ligger i språkmodulen.
+ *
+ * Varianter som bara upprepar samma pass — "push/pull/ben sex dagar" — finns
+ * inte här. I rullande läge cyklar rotationen ändå, så [push, pull, ben, push,
+ * pull, ben] ger exakt samma vecka som [push, pull, ben]. Det vore ett val som
+ * inte väljer något.
+ */
+function rolling(id: string, ...names: string[]): { id: string; plan: TrainingPlan } {
+  return {
+    id,
     plan: {
       mode: 'rolling',
-      sessions: [
-        { id: 'overkropp', name: 'Överkropp' },
-        { id: 'underkropp', name: 'Underkropp' },
-      ],
+      sessions: names.map((name) => ({
+        id: `${id}-${name.toLowerCase().replace(/[^a-z0-9åäö]+/g, '-')}`,
+        name,
+      })),
     },
-  },
-  {
-    id: 'push-pull-ben',
-    name: 'Push / pull / ben',
-    plan: {
-      mode: 'rolling',
-      sessions: [
-        { id: 'push', name: 'Push' },
-        { id: 'pull', name: 'Pull' },
-        { id: 'ben', name: 'Ben' },
-      ],
-    },
-  },
-  {
-    id: 'framsida-baksida',
-    name: 'Framsida / baksida',
-    plan: {
-      mode: 'rolling',
-      sessions: [
-        { id: 'framsida', name: 'Framsida' },
-        { id: 'baksida', name: 'Baksida' },
-      ],
-    },
-  },
+  };
+}
+
+export const starterPlans: { id: string; plan: TrainingPlan }[] = [
+  rolling('helkropp', 'Helkropp'),
+  rolling('push-pull', 'Push', 'Pull'),
+  rolling('over-under', 'Överkropp', 'Underkropp'),
+  rolling('framsida-baksida', 'Framsida', 'Baksida'),
+  rolling('push-pull-ben', 'Push', 'Pull', 'Ben'),
+  rolling('arnold', 'Bröst & rygg', 'Axlar & armar', 'Ben'),
+  rolling('fyrdelad', 'Bröst', 'Rygg', 'Ben', 'Axlar & armar'),
+  rolling('kroppsdelar', 'Bröst', 'Rygg', 'Axlar', 'Armar', 'Ben'),
 ];
 
 export const ALL_WEEKDAYS: Weekday[] = [1, 2, 3, 4, 5, 6, 7];

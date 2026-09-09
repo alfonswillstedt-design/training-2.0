@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Button, ChipGroup, EmptyState, Field, Screen, ScreenHeader, TextField } from '../../design';
-import { ALL_WEEKDAYS, starterPlans } from '../../scheduling/defaults';
+import { ALL_WEEKDAYS } from '../../scheduling/defaults';
 import type { TrainingPlan, Weekday } from '../../scheduling/types';
 import { strings } from '../../strings';
+import { StarterPicker } from './StarterPicker';
 import {
   addSession,
   bindWeekday,
@@ -43,14 +44,10 @@ export function PlanView({
     <Screen>
       {plan.sessions.length === 0 ? (
         <EmptyState title={strings.plan.empty.title} body={strings.plan.empty.body}>
-          <div className="mt-7 flex flex-col gap-2">
-            {starterPlans.map((starter) => (
-              <Button key={starter.id} variant="quiet" onClick={() => onChange(starter.plan)}>
-                {starter.name}
-              </Button>
-            ))}
-          </div>
           <div className="mt-7">
+            <StarterPicker onPick={onChange} />
+          </div>
+          <div className="mt-5">
             <NewSession value={newName} onChange={setNewName} onAdd={add} />
           </div>
         </EmptyState>
