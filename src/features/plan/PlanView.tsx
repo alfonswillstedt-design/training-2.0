@@ -3,6 +3,7 @@ import { Button, ChipGroup, EmptyState, Field, Screen, ScreenHeader, TextField }
 import { ALL_WEEKDAYS } from '../../scheduling/defaults';
 import type { TrainingPlan, Weekday } from '../../scheduling/types';
 import { strings } from '../../strings';
+import { IconButton, NewSession } from './NewSession';
 import { StarterPicker } from './StarterPicker';
 import {
   addSession,
@@ -142,53 +143,5 @@ export function PlanView({
         </>
       )}
     </Screen>
-  );
-}
-
-function NewSession({
-  value,
-  onChange,
-  onAdd,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  onAdd: () => void;
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      <TextField value={value} onChange={onChange} placeholder={strings.plan.sessionPlaceholder} />
-      <IconButton
-        label={strings.plan.addSession}
-        symbol="+"
-        disabled={value.trim() === ''}
-        onClick={onAdd}
-      />
-    </div>
-  );
-}
-
-function IconButton({
-  label,
-  symbol,
-  disabled,
-  onClick,
-}: {
-  label: string;
-  symbol: string;
-  disabled?: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      disabled={disabled}
-      onClick={onClick}
-      className={`size-11 shrink-0 rounded-tight border border-line text-[16px] ${
-        disabled ? 'text-ink-faint opacity-40' : 'text-ink-soft'
-      }`}
-    >
-      {symbol}
-    </button>
   );
 }

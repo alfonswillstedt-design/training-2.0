@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Button, Field, Screen, Stepper, TimeField } from '../../design';
-import { ChipGroup } from '../../design';
-import { StarterPicker } from './StarterPicker';
+import { Button, ChipGroup, Field, Screen, Stepper, TimeField } from '../../design';
 import type { Preferences, TrainingPlan, TravelMode } from '../../scheduling/types';
 import { strings } from '../../strings';
+import { IconButton, NewSession } from './NewSession';
+import { addSession, isPlanUsable, removeSession } from './planActions';
+import { StarterPicker } from './StarterPicker';
 
 /**
  * Första besöket.
@@ -16,19 +17,35 @@ import { strings } from '../../strings';
  * vill träna, och varje antagande där blir fel för någon.
  */
 export function Onboarding({
+  plan,
   preferences,
   onChangePreferences,
   onChangePlan,
   onDone,
 }: {
+  plan: TrainingPlan;
   preferences: Preferences;
   onChangePreferences: (patch: Partial<Preferences>) => void;
   onChangePlan: (plan: TrainingPlan) => void;
   onDone: () => void;
 }) {
   const [step, setStep] = useState(0);
+  const [own, setOwn] = useState(false);
+  const [newName, setNewName] = useState('');
   const minutes = strings.settings.minutes;
   const last = step === 3;
+
+  function addOwn() {
+    const next = addSession(plan, newName);
+    if (next !== plan) {
+      onChangePlan(next);
+      setNewName('');
+    }
+  }
+
+  // Första steget har ingen knapp när man väljer ur listan — valet går vidare
+  // av sig självt. Skriver man in eget behövs den för att gå vidare.
+  const showNext = step > 0 || (own && isPlanUsable(plan));
 
   return (
     <Screen>
@@ -42,19 +59,46 @@ export function Onboarding({
           ][step]}
         </h1>
 
-        {step === 0 && (
-          <div className="flex flex-col gap-4">
-            <StarterPicker
-              onPick={(plan) => {
-                onChangePlan(plan);
-                setStep(1);
-              }}
-            />
-            <Button variant="quiet" onClick={() => setStep(1)}>
-              {strings.onboarding.ownPlan}
-            </Button>
-          </div>
-        )}
+        {step === 0 &&
+          (own ? (
+            <div className="flex flex-col gap-4">
+              <NewSession value={newName} onChange={setNewName} onAdd={addOwn} />
+
+              {plan.sessions.length > 0 && (
+                <ul className="overflow-hidden rounded-soft border border-line bg-raised">
+                  {plan.sessions.map((session) => (
+                    <li
+                      key={session.id}
+                      className="flex items-center justify-between gap-2 border-b border-line py-2 pr-2 pl-4 last:border-b-0"
+                    >
+                      <span className="text-[16px] font-medium">{session.name}</span>
+                      <IconButton
+                        label={strings.plan.removeSession}
+                        symbol="✕"
+                        onClick={() => onChangePlan(removeSession(plan, session.id))}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <Button variant="quiet" onClick={() => setOwn(false)}>
+                {strings.onboarding.pickReady}
+              </Button>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <StarterPicker
+                onPick={(picked) => {
+                  onChangePlan(picked);
+                  setStep(1);
+                }}
+              />
+              <Button variant="quiet" onClick={() => setOwn(true)}>
+                {strings.onboarding.ownPlan}
+              </Button>
+            </div>
+          ))}
 
         {step === 1 && (
           <Stepper
@@ -121,7 +165,7 @@ export function Onboarding({
         )}
       </div>
 
-      {step > 0 && (
+      {showNext && (
         <Button onClick={() => (last ? onDone() : setStep(step + 1))}>
           {last ? strings.onboarding.start : strings.onboarding.next}
         </Button>

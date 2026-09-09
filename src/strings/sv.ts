@@ -200,6 +200,7 @@ export const sv = {
     next: 'Nästa',
     start: 'Sätt igång',
     ownPlan: 'Skriv in eget upplägg',
+    pickReady: 'Välj ett färdigt i stället',
     questions: {
       plan: 'Vilket upplägg kör du?',
       length: 'Hur långt är ett pass?',

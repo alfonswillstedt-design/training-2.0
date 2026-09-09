@@ -60,11 +60,14 @@ export function TextField({
   onChange,
   placeholder,
   autoFocus,
+  onSubmit,
 }: {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string | undefined;
   autoFocus?: boolean | undefined;
+  /** Anropas på Enter. Att skriva ett namn och trycka retur ska räcka. */
+  onSubmit?: (() => void) | undefined;
 }) {
   return (
     <input
@@ -73,6 +76,9 @@ export function TextField({
       placeholder={placeholder}
       autoFocus={autoFocus}
       onChange={(event) => onChange(event.target.value)}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' && onSubmit) onSubmit();
+      }}
       className={FIELD}
     />
   );

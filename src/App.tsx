@@ -72,6 +72,7 @@ export function App() {
   if (!data.onboarded) {
     return (
       <Onboarding
+        plan={plan}
         preferences={preferences}
         onChangePreferences={patchPreferences}
         onChangePlan={setPlan}
