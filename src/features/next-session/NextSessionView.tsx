@@ -79,7 +79,8 @@ export function NextSessionView({
       {missedToday && (
         <div className="mb-7 rounded-tight bg-accent-wash px-4 py-3.5">
           <p className="text-[14px] leading-snug text-ink">
-            {strings.nextSession.missed(missedToday.start)}
+            <span className="font-semibold">{strings.today.label}</span> ·{' '}
+            {strings.nextSession.missed(missedToday.sessionName, missedToday.start)}
           </p>
           <button
             type="button"

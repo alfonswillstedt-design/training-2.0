@@ -78,7 +78,11 @@ export const sv = {
     eyebrow: 'Nästa pass',
     endsAt: (end: Minutes) => `Slutar ${clock(end)}`,
     complete: 'Klar med passet',
-    missed: (start: Minutes) => `Tränade du ${clock(start)}-passet?`,
+    /**
+     * Namnger både dagen och passet. Ett klockslag ensamt räcker inte —
+     * nästa pass ligger ofta på samma tid, och då går de inte att skilja åt.
+     */
+    missed: (name: string, start: Minutes) => `Tränade du ${name} ${clock(start)}?`,
     confirmMissed: 'Ja, jag tränade',
   },
 
