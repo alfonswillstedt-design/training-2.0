@@ -13,9 +13,9 @@ eller Strong, inte ersätta dem.
 
 ## Läge
 
-Steg 1–8 av 9 i byggordningen är klara: schemaläggningsmotorn med tester, alla
+Alla nio steg i byggordningen är klara: schemaläggningsmotorn med tester, alla
 fyra flikar, lagringen, första besökets frågor, veckovyns signaturinteraktion,
-och genomgången av tomma tillstånd, mörkt läge och tillgänglighet. Allt sparas i localStorage
+genomgången av tomma tillstånd, mörkt läge och tillgänglighet, och PWA:n. Allt sparas i localStorage
 under en enda nyckel och kan exporteras och importeras som JSON.
 
 Veckovyns signaturinteraktion finns: dra på en dag för att markera upptagen
@@ -28,7 +28,9 @@ Appen ligger live på https://alfonswillstedt-design.github.io/training-2.0/
 och deployas automatiskt vid varje push. Testerna är en grind i bygget: går de
 inte igenom deployas ingenting.
 
-Kvar: PWA — service worker, manifest och ikoner.
+Appen går att spara på hemskärmen och fungerar i flygplansläge. Service
+workern förcachar allt inklusive typsnittet, så appen inte byter utseende utan
+uppkoppling. Inga behörigheter begärs och inga notiser skickas.
 
 ## Kommandon
 

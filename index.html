@@ -5,7 +5,12 @@
     <!-- viewport-fit=cover krävs för att env(safe-area-inset-*) ska bli annat än noll. -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#faf8f4" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#100f0d" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#121110" media="(prefers-color-scheme: dark)" />
+    <!-- iOS läser inte manifestets ikoner. Utan den här blir hemskärmsikonen
+         en suddig miniatyr av sidan. -->
+    <link rel="apple-touch-icon" href="/training-2.0/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Träning" />
     <title>Träningsschemaläggare</title>
   </head>
   <body>
