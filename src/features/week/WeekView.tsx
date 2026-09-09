@@ -4,6 +4,7 @@ import type { Commitment, IsoDate, Minutes, PlannedDay } from '../../scheduling/
 import { strings } from '../../strings';
 import { newCommitment } from '../commitments/commitmentActions';
 import { DaySheet } from './DaySheet';
+import { nextSessionAfter, type DayWithSession } from './weekSummary';
 import {
   dayTrack,
   dragInterval,
@@ -112,6 +113,7 @@ export function WeekView({
               <DayRow
                 day={day}
                 isToday={day.date === today}
+                nextAfter={day.session === null ? nextSessionAfter(days, day.date) : null}
                 segments={dayTrack(day, range)}
                 dragging={drag?.date === day.date}
                 onOpen={() => setOpenDate(day.date)}
@@ -140,6 +142,7 @@ export function WeekView({
 function DayRow({
   day,
   isToday,
+  nextAfter,
   segments,
   dragging,
   onOpen,
@@ -150,6 +153,8 @@ function DayRow({
 }: {
   day: PlannedDay;
   isToday: boolean;
+  /** Nästa dag med ett pass, när den här dagen inte fick något. */
+  nextAfter: DayWithSession | null;
   segments: TrackSegment[];
   dragging: boolean;
   onOpen: () => void;
@@ -195,6 +200,16 @@ function DayRow({
               ? strings.reason(day.reason)
               : strings.week.free}
         </span>
+
+        {/* En vilodag utan besked om vart träningen tog vägen är ett halvt svar. */}
+        {nextAfter && (
+          <span className="mt-1 block text-[13px] leading-snug text-ink-faint">
+            {strings.week.nextIs(
+              strings.dayLabel(nextAfter.date),
+              clock(nextAfter.session.start),
+            )}
+          </span>
+        )}
       </button>
 
       {/* touch-pan-y låter sidan scrolla vertikalt medan draget äger x-led. */}

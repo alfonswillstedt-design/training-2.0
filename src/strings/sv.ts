@@ -64,6 +64,8 @@ export const sv = {
     title: 'Veckan',
     lead: 'Dra på en dag för att markera upptagen tid. Tryck för att ändra den.',
     markedBusy: 'Upptaget',
+    /** Svarar på frågan en vilodag lämnar öppen: vart tog träningen vägen? */
+    nextIs: (day: string, time: string) => `Nästa pass: ${day}, ${time}.`,
     trackLabel: (day: string) => `${day} — dra för att markera upptagen tid`,
     free: 'Hela dagen ledig.',
     commitmentsLabel: 'Den här dagen',
