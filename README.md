@@ -17,10 +17,13 @@ Steg 1–6 av 9 i byggordningen är klara: schemaläggningsmotorn med tester, al
 fyra flikar, lagringen, och första besökets frågor. Allt sparas i localStorage
 under en enda nyckel och kan exporteras och importeras som JSON.
 
-Veckovyns signaturinteraktion — att markera upptagen tid direkt på dagen och
-se passet flytta sig live — kommer i steg 7. Dagarna ritas redan som
-proportionella spår, så den läggs ovanpå i stället för att ersätta något.
-Därefter återstår tomma tillstånd och tillgänglighet, och sist PWA och deploy.
+Veckovyns signaturinteraktion finns: dra på en dag för att markera upptagen
+tid och se träningsblocket flytta sig medan fingret rör sig. Draget matas
+genom samma motor som allt annat, så blocket som rör sig är ett riktigt
+resultat — inte en animation som låtsas. Ingenting skrivs förrän man släpper,
+och samma sak går att göra utan drag genom att trycka på dagen.
+
+Kvar: tomma tillstånd och tillgänglighet, och sist PWA och deploy.
 
 ## Kommandon
 

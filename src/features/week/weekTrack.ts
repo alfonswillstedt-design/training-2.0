@@ -89,3 +89,34 @@ export function dayTrack(day: PlannedDay, range: TimeRange): TrackSegment[] {
   // Passet ritas sist så det ligger överst när det tangerar ett åtagande.
   return segments.sort((a, b) => a.offset - b.offset || (a.kind === 'session' ? 1 : -1));
 }
+
+/** Minsta längd på ett draget block. Kortare än så var det nog ett tryck. */
+export const MIN_DRAG = 15;
+
+/** Steget markeringen fäster mot — samma fem minuter som tidsväljaren. */
+export const DRAG_STEP = 5;
+
+/**
+ * Klockslaget för en andel av spårets bredd, fäst mot närmaste steg.
+ * Andelen klipps till spåret, så ett finger som glider utanför kanten inte
+ * ger tider utanför dygnet.
+ */
+export function minutesAt(fraction: number, range: TimeRange, step: Minutes = DRAG_STEP): Minutes {
+  const clamped = Math.min(1, Math.max(0, fraction));
+  const raw = range.from + clamped * (range.to - range.from);
+  return Math.min(range.to, Math.max(range.from, Math.round(raw / step) * step));
+}
+
+/**
+ * Två punkter blir ett intervall, oavsett vilket håll man drog åt. Ett för
+ * kort drag ger null — då ska ingenting skapas.
+ */
+export function dragInterval(
+  a: Minutes,
+  b: Minutes,
+  minimum: Minutes = MIN_DRAG,
+): { start: Minutes; end: Minutes } | null {
+  const start = Math.min(a, b);
+  const end = Math.max(a, b);
+  return end - start < minimum ? null : { start, end };
+}

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { dayTrack, weekRange } from '../../src/features/week/weekTrack';
+import {
+  dayTrack,
+  dragInterval,
+  MIN_DRAG,
+  minutesAt,
+  weekRange,
+} from '../../src/features/week/weekTrack';
 import { weekdayOf } from '../../src/scheduling/date';
 import { hhmm } from '../../src/scheduling/time';
 import type { BusyBlock, IsoDate, PlannedDay, Weekday } from '../../src/scheduling/types';
@@ -113,5 +119,41 @@ describe('dayTrack', () => {
 
   it('ger inga segment när spannet är tomt', () => {
     expect(dayTrack(day('2025-09-01', [busy('Jobb', '08:00', '16:00')]), { from: 600, to: 600 })).toEqual([]);
+  });
+});
+
+describe('minutesAt', () => {
+  const range = { from: hhmm('06:00'), to: hhmm('22:00') };
+
+  it('ger spannets början och slut vid kanterna', () => {
+    expect(minutesAt(0, range)).toBe(hhmm('06:00'));
+    expect(minutesAt(1, range)).toBe(hhmm('22:00'));
+  });
+
+  it('fäster mot fem minuter', () => {
+    // Halvvägs in i 960 minuter är 14:00 exakt.
+    expect(minutesAt(0.5, range)).toBe(hhmm('14:00'));
+    expect(minutesAt(0.5013, range) % 5).toBe(0);
+  });
+
+  it('klipper ett finger som glider utanför spåret', () => {
+    expect(minutesAt(-0.4, range)).toBe(hhmm('06:00'));
+    expect(minutesAt(1.6, range)).toBe(hhmm('22:00'));
+  });
+});
+
+describe('dragInterval', () => {
+  it('ordnar punkterna oavsett dragriktning', () => {
+    expect(dragInterval(600, 800)).toEqual({ start: 600, end: 800 });
+    expect(dragInterval(800, 600)).toEqual({ start: 600, end: 800 });
+  });
+
+  it('ger null för ett drag som är för kort för att vara menat', () => {
+    expect(dragInterval(600, 605)).toBeNull();
+    expect(dragInterval(600, 600)).toBeNull();
+  });
+
+  it('släpper igenom ett drag som precis når minimum', () => {
+    expect(dragInterval(600, 600 + MIN_DRAG)).toEqual({ start: 600, end: 615 });
   });
 });

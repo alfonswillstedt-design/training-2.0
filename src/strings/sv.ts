@@ -62,7 +62,9 @@ export const sv = {
 
   week: {
     title: 'Veckan',
-    lead: 'Tryck på en dag för att ändra den.',
+    lead: 'Dra på en dag för att markera upptagen tid. Tryck för att ändra den.',
+    markedBusy: 'Upptaget',
+    trackLabel: (day: string) => `${day} — dra för att markera upptagen tid`,
     free: 'Hela dagen ledig.',
     commitmentsLabel: 'Den här dagen',
     noCommitments: 'Inget åtagande den här dagen.',
