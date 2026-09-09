@@ -105,7 +105,7 @@ export function SettingsSheet({
                   <span className="flex flex-1 items-center gap-2">
                     <CompactTime
                       value={hours.open}
-                      label={strings.settings.open}
+                      label={strings.timeField.from}
                       onChange={(open) =>
                         onChange({
                           gymHours: { ...preferences.gymHours, [weekday]: { ...hours, open } },
@@ -115,7 +115,7 @@ export function SettingsSheet({
                     <span className="text-ink-faint">–</span>
                     <CompactTime
                       value={hours.close}
-                      label={strings.settings.closed}
+                      label={strings.timeField.to}
                       onChange={(close) =>
                         onChange({
                           gymHours: { ...preferences.gymHours, [weekday]: { ...hours, close } },
@@ -141,7 +141,7 @@ export function SettingsSheet({
                   }
                   className="min-h-11 shrink-0 px-2 text-[13px] font-medium text-accent"
                 >
-                  {hours ? strings.settings.closed : strings.settings.open}
+                  {hours ? strings.settings.markClosed : strings.settings.markOpen}
                 </button>
               </li>
             );

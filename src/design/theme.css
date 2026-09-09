@@ -82,6 +82,18 @@
     cursor: pointer;
   }
 
+  /*
+   * Listan som fälls ut ur en select ritas av webbläsaren, inte av oss, och
+   * den ärver färgerna från själva elementet. Ett genomskinligt fält blir
+   * därför en vit lista — med vit text i mörkt läge, alltså oläsbar. Färgerna
+   * måste sättas explicit på både select och option.
+   */
+  select,
+  option {
+    background-color: var(--raised);
+    color: var(--ink);
+  }
+
   :focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;

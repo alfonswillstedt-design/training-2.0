@@ -120,7 +120,7 @@ export function PlanView({
                       onChange={(event) =>
                         onChange(bindWeekday(plan, weekday, event.target.value || null))
                       }
-                      className="min-h-11 flex-1 appearance-none bg-transparent text-[15px] text-ink"
+                      className="min-h-11 flex-1 appearance-none text-[15px]"
                     >
                       <option value="">{strings.plan.unbound}</option>
                       {plan.sessions.map((session) => (

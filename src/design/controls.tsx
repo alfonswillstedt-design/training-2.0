@@ -111,7 +111,7 @@ export function TimeField({
     (a, b) => a - b,
   );
 
-  const unit = 'appearance-none bg-transparent py-3 text-center text-[16px] tabular-nums text-ink';
+  const unit = 'appearance-none py-3 text-center text-[16px] tabular-nums';
 
   return (
     <div className="flex flex-1 items-center justify-center rounded-tight border border-line bg-raised px-1">

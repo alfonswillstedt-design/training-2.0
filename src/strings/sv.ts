@@ -184,8 +184,11 @@ export const sv = {
     earliest: 'Tidigast',
     latest: 'Senast klar',
     gymLabel: 'Gymmets öppettider',
-    open: 'Öppet',
+    /** Status, när dagen inte har några öppettider. */
     closed: 'Stängt',
+    /** Vad knappen gör — inte vilket läge dagen är i. */
+    markClosed: 'Stäng',
+    markOpen: 'Öppna',
     mealLabel: 'Mat före passet',
     mealOn: 'Räkna med tid att äta',
     mealHelp: 'Gäller de åtaganden du markerat att du måste äta efter.',
