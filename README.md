@@ -13,15 +13,20 @@ eller Strong, inte ersätta dem.
 
 ## Läge
 
-Steg 1 av 9 i byggordningen är klar: datamodeller och schemaläggningsmotorn,
-med tester. Inget UI ännu.
+Steg 1–2 av 9 i byggordningen är klara: schemaläggningsmotorn med tester, och
+flik 1 — Nästa pass — mot hårdkodad testdata. Ingen lagring, inga flikar än.
+
+I dev-bygget ligger en scenarioväljare under vyn som visar varje tillstånd:
+skoldag, efter jobbet, vilodag, PWO före passet, dag som inte går ihop, och de
+två tomma tillstånden.
 
 ## Kommandon
 
 ```bash
 npm install
+npm run dev       # startar på /training-2.0/
 npm test          # kör testsviten
-npm run typecheck
+npm run build     # typkontroll + produktionsbygge
 ```
 
 ## Struktur
@@ -29,8 +34,18 @@ npm run typecheck
 ```
 src/scheduling/    planWeek + typer — noll React-beroenden, avsedd att kunna
                    flyttas rakt över till en native-app
-tests/scheduling/  testerna, skrivna före motorn
+src/design/        typskala, färger, tidsformatering
+src/strings/       allt synligt språk på ett ställe
+src/features/      en mapp per flik
+tests/             testerna, skrivna före koden de täcker
 ```
+
+## Designspråk
+
+Mobilen först, 390 px som mått. Ett typsnitt — Instrument Sans, självhostat, så
+appen fungerar i flygplansläge — där vikt och storlek är enda kontrastmedel.
+Exakt två hörnradier. Mörkt läge följer systemet och är ingen inställning.
+Klockslag sätts med tabulära siffror så de inte hoppar när de uppdateras.
 
 ### Motorn
 

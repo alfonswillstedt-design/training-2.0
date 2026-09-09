@@ -1,0 +1,86 @@
+@import 'tailwindcss';
+
+/*
+ * Designspråket.
+ *
+ * Ett typsnitt, där vikt och storlek är enda kontrastmedel. Två hörnradier och
+ * inga fler. Mörkt läge följer systemet — det är ingen inställning i appen.
+ */
+
+:root {
+  color-scheme: light;
+
+  --paper: #faf8f4;
+  --raised: #ffffff;
+  --ink: #1a1713;
+  --ink-soft: #6e6659;
+  --ink-faint: #a9a192;
+  --line: #e7e1d7;
+  --accent: #d14808;
+  --accent-ink: #ffffff;
+  --accent-wash: #fbeee6;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --paper: #121110;
+    --raised: #1c1a17;
+    --ink: #f4f1ea;
+    --ink-soft: #9b9384;
+    --ink-faint: #6b6458;
+    --line: #2c2924;
+    --accent: #ff7a3d;
+    --accent-ink: #1a1713;
+    --accent-wash: #2a1b12;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-raised: var(--raised);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-wash: var(--accent-wash);
+
+  --font-sans: 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
+
+  /* Exakt två radier. Den snäva på kontroller och chips, den mjuka på ytor. */
+  --radius-tight: 12px;
+  --radius-soft: 26px;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    /* Ingen studsande överscroll — appen ska kännas som en app. */
+    overscroll-behavior-y: none;
+  }
+
+  /* Klockslag får aldrig hoppa i sidled när de uppdateras. */
+  time {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Träffytor är minst 44 px. */
+  button {
+    min-height: 44px;
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+}
