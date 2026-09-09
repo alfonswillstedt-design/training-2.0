@@ -58,6 +58,39 @@ ny version i stället för att raderas. Data som inte går att läsa läggs i
 karantän under en egen nyckel i stället för att skrivas över. Export och import
 som JSON är hela backup-lösningen, och vägen in i en framtida native-app.
 
+## Riktning efter demon
+
+Appen finns i två nivåer. **Schemaläggningen i appen** är den ena, och den är
+en färdig produkt i sig — inte en trappa upp till något annat. **Kalendern är
+en uppgradering man köper**: appen lever då i användarens Google-kalender och
+räknar om aktivt efter vad som händer i livet.
+
+Att det är två nivåer och inte två steg får en konsekvens som styr all kod
+härifrån: kalendern måste läggas ovanpå utan att ändra kärnan. Den som aldrig
+betalar ska inte märka att integrationen finns, och motorn ska inte veta att
+det finns en kalender.
+
+Vid varje ändring läser den betalda versionen kalendern och skriver tillbaka —
+men det enda den någonsin får ändra där är var träningspasset ligger. Allt
+annat i kalendern är läsdata.
+
+Tre beslut som hör dit:
+
+- **Mattid per händelse.** En kalenderhändelse bär inte informationen om man
+  måste hinna äta efter den. Appen frågar en gång när ett nytt återkommande
+  block dyker upp, och minns svaret.
+- **Notiser när ett pass flyttas.** Bara då, aldrig annars. Det river upp
+  v1-regeln om noll notiser och noll behörigheter — men utan dem skulle
+  schemat ändras bakom ryggen på användaren, och det väger tyngre.
+- **Backend blir nödvändig.** Att synka när appen är stängd, hålla OAuth-tokens
+  vid liv och skicka push går inte från en statisk sida utan nätverksanrop.
+  Beslutet "ingen backend, inga konton" gäller demon, inte kalenderversionen.
+
+Datamodellen klarar redan kalenderhändelser utan ändring: ett åtagande utan
+fasta veckodagar men med undantag för enskilda datum är precis vad en
+kalenderhändelse är. Motorn tar emot upptagen tid, inte kalendrar — därför
+byter den källa utan att räkna om något annat.
+
 ### Motorn
 
 `planWeek(input) → PlannedDay[]` är ren och deterministisk. Samma indata ger
