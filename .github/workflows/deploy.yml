@@ -1,0 +1,53 @@
+name: Deploy till GitHub Pages
+
+on:
+  push:
+    # Repots default branch. Döps den om till main senare fungerar bägge.
+    branches: [claude/elegant-fermi-aqzsoa, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# En deploy i taget. Pågående körningar får bli klara i stället för att avbrytas.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  bygg:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Testerna är grinden. Går de inte igenom deployas ingenting.
+      - run: npm test
+
+      - run: npm run build
+
+      # Direktlänkar ska inte ge 404. Appen har ingen router än, men
+      # fallbacken kostar ingenting och behövs den dagen den får en.
+      - run: cp dist/index.html dist/404.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploya:
+    needs: bygg
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
