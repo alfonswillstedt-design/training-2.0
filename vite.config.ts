@@ -3,7 +3,15 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// Stämplas in i bygget så att appen kan visa vilken version som faktiskt kör.
+// Utan den är "ser det gammalt ut?" en känsla i stället för ett faktum.
+// BUILD_STAMP låter bygget märkas utifrån — CI kan sätta en commit, och ett
+// test kan skilja två bygg åt utan att behöva ändra i källkoden.
+const byggdNu =
+  process.env['BUILD_STAMP'] ?? new Date().toISOString().slice(0, 16).replace('T', ' ');
+
 export default defineConfig({
+  define: { __BYGGD__: JSON.stringify(byggdNu) },
   // Appen ligger på GitHub Pages under /training-2.0/. Utan base laddar inga
   // assets i produktion.
   base: '/training-2.0/',

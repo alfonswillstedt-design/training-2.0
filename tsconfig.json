@@ -4,7 +4,7 @@
     "lib": ["ES2022", "DOM"],
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "types": ["vitest/globals", "vite/client"],
+    "types": ["vitest/globals", "vite/client", "vite-plugin-pwa/client"],
     "jsx": "react-jsx",
 
     "strict": true,

@@ -121,6 +121,7 @@ export const sv = {
 
   backup: {
     title: 'Data',
+    version: (byggd: string) => `Version ${byggd}`,
     lead: 'Allt ligger bara i den här webbläsaren. Exportera en fil om du vill kunna flytta datan eller få tillbaka den.',
     export: 'Exportera till fil',
     import: 'Läs in från fil',

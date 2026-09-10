@@ -78,6 +78,10 @@ export function BackupSection({
         </p>
       )}
 
+      <p className="mt-5 text-[13px] text-ink-faint tabular-nums">
+        {strings.backup.version(__BYGGD__)}
+      </p>
+
       {pending && (
         <div className="mt-4 rounded-soft border border-line bg-raised p-5">
           <p className="text-[17px] font-semibold">{strings.backup.confirmTitle}</p>
