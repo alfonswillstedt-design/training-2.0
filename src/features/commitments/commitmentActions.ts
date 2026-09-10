@@ -1,6 +1,12 @@
 import { weekdayOf } from '../../scheduling/date';
 import { hhmm } from '../../scheduling/time';
-import type { Commitment, CommitmentException, IsoDate, Weekday } from '../../scheduling/types';
+import type {
+  Commitment,
+  CommitmentException,
+  IsoDate,
+  Minutes,
+  Weekday,
+} from '../../scheduling/types';
 
 /**
  * Rena tillståndsövergångar för åtaganden.
@@ -103,6 +109,8 @@ export interface WeekException {
   label: string;
   index: number;
   exception: CommitmentException;
+  /** Falskt när åtagandet bara är en engångshändelse, inte något återkommande. */
+  recurring: boolean;
 }
 
 /**
@@ -121,6 +129,7 @@ export function exceptionsInWeek(list: Commitment[], dates: IsoDate[]): WeekExce
           label: commitment.label,
           index,
           exception,
+          recurring: commitment.weekdays.length > 0,
         });
       }
     });
@@ -140,7 +149,33 @@ export function recurringDatesInWeek(commitment: Commitment, dates: IsoDate[]): 
   return dates.filter((date) => commitment.weekdays.includes(weekdayOf(date)));
 }
 
-/** Ett åtagande utan namn och utan dagar är ofullständigt och sparas inte. */
+/**
+ * Ett åtagande duger när det har ett namn och tar upp tid någonstans — antingen
+ * på fasta veckodagar eller vid ett enskilt datum. En engångshändelse har inga
+ * fasta dagar, bara ett datum, och är lika giltig för det.
+ */
 export function isUsable(commitment: Commitment): boolean {
-  return commitment.label.trim() !== '' && commitment.weekdays.length > 0;
+  if (commitment.label.trim() === '') return false;
+  return commitment.weekdays.length > 0 || commitment.exceptions.length > 0;
+}
+
+/** Datumet för en engångshändelse, om åtagandet är en sådan. */
+export function oneOffDate(commitment: Commitment): IsoDate | null {
+  if (commitment.weekdays.length > 0) return null;
+  return commitment.exceptions.find((exception) => exception.kind === 'extra')?.date ?? null;
+}
+
+/** Ett åtagande som bara händer en gång, vid ett datum. */
+export function asOneOff(
+  commitment: Commitment,
+  date: IsoDate | null,
+  start: Minutes,
+  end: Minutes,
+): Partial<Omit<Commitment, 'id'>> {
+  return {
+    weekdays: [],
+    start,
+    end,
+    exceptions: date === null ? [] : [{ date, kind: 'extra', start, end }],
+  };
 }

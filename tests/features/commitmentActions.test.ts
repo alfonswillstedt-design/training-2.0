@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   addException,
+  asOneOff,
   exceptionsInWeek,
   isUsable,
   newCommitment,
+  oneOffDate,
   recurringCommitments,
   recurringDatesInWeek,
   removeCommitment,
@@ -188,5 +190,77 @@ describe('städning när ett undantag tas bort', () => {
       ],
     });
     expect(removeExceptionAt([markering], 'dragen', 0)).toHaveLength(1);
+  });
+});
+
+describe('engångshändelser', () => {
+  it('duger med namn och datum, utan fasta veckodagar', () => {
+    const engång = commitment({
+      weekdays: [],
+      exceptions: [{ date: '2025-09-02', kind: 'extra', start: 1140, end: 1200 }],
+    });
+    expect(isUsable(engång)).toBe(true);
+  });
+
+  it('duger inte utan vare sig dagar eller datum', () => {
+    expect(isUsable(commitment({ weekdays: [], exceptions: [] }))).toBe(false);
+  });
+
+  it('duger inte utan namn, hur den än är lagd', () => {
+    const engång = commitment({
+      label: '  ',
+      weekdays: [],
+      exceptions: [{ date: '2025-09-02', kind: 'extra', start: 1140, end: 1200 }],
+    });
+    expect(isUsable(engång)).toBe(false);
+  });
+
+  it('känns igen på att den saknar fasta dagar men har ett datum', () => {
+    const engång = commitment({
+      weekdays: [],
+      exceptions: [{ date: '2025-09-02', kind: 'extra', start: 1140, end: 1200 }],
+    });
+    expect(oneOffDate(engång)).toBe('2025-09-02');
+  });
+
+  it('är inte en engångshändelse när åtagandet också återkommer', () => {
+    const extrapass = commitment({
+      weekdays: [2],
+      exceptions: [{ date: '2025-09-03', kind: 'extra', start: 960, end: 1080 }],
+    });
+    expect(oneOffDate(extrapass)).toBeNull();
+  });
+
+  it('skriver tiderna på både åtagandet och datumet', () => {
+    const patch = asOneOff(commitment(), '2025-09-02', hhmm('19:00'), hhmm('20:00'));
+    expect(patch.weekdays).toEqual([]);
+    expect(patch.start).toBe(hhmm('19:00'));
+    expect(patch.exceptions).toEqual([
+      { date: '2025-09-02', kind: 'extra', start: hhmm('19:00'), end: hhmm('20:00') },
+    ]);
+  });
+
+  it('lämnar undantagen tomma tills en dag är vald', () => {
+    expect(asOneOff(commitment(), null, 600, 700).exceptions).toEqual([]);
+  });
+
+  it('säger vilka undantag som hör till något återkommande', () => {
+    const list = [
+      commitment({
+        id: 'skola',
+        exceptions: [{ date: '2025-09-05', kind: 'off' }],
+      }),
+      commitment({
+        id: 'plugga',
+        label: 'Plugga',
+        weekdays: [],
+        exceptions: [{ date: '2025-09-02', kind: 'extra', start: 1140, end: 1200 }],
+      }),
+    ];
+    const found = exceptionsInWeek(list, week);
+    expect(found.map((item) => [item.commitmentId, item.recurring])).toEqual([
+      ['plugga', false],
+      ['skola', true],
+    ]);
   });
 });

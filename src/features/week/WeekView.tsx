@@ -130,6 +130,7 @@ export function WeekView({
       {open && (
         <DaySheet
           day={open}
+          dates={days.map((day) => day.date)}
           commitments={commitments}
           onChange={onChange}
           onClose={() => setOpenDate(null)}

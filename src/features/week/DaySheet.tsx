@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { clock, clockRange, duration, Button, Sheet } from '../../design';
-import type { Commitment, PlannedDay } from '../../scheduling/types';
+import type { Commitment, IsoDate, PlannedDay } from '../../scheduling/types';
 import { strings } from '../../strings';
 import {
   addCommitment,
+  asOneOff,
   newCommitment,
   removeCommitment,
   updateCommitment,
@@ -16,11 +17,14 @@ import { CommitmentEditor } from '../commitments/CommitmentEditor';
  */
 export function DaySheet({
   day,
+  dates,
   commitments,
   onChange,
   onClose,
 }: {
   day: PlannedDay;
+  /** Veckans datum, som redigeraren behöver för att välja dag. */
+  dates: IsoDate[];
   commitments: Commitment[];
   onChange: (next: Commitment[]) => void;
   onClose: () => void;
@@ -87,7 +91,12 @@ export function DaySheet({
         <div className="mt-3">
           <Button
             variant="quiet"
-            onClick={() => setDraft({ ...newCommitment(), weekdays: [day.weekday] })}
+            onClick={() => {
+              // Man tittar på en dag, inte på en vecka. Förvalet är därför
+              // något som händer just den dagen — inte varje vecka.
+              const fresh = newCommitment();
+              setDraft({ ...fresh, ...asOneOff(fresh, day.date, fresh.start, fresh.end) });
+            }}
           >
             {strings.week.add}
           </Button>
@@ -98,6 +107,7 @@ export function DaySheet({
         <CommitmentEditor
           commitment={draft}
           isNew
+          dates={dates}
           onChange={(patch) => setDraft({ ...draft, ...patch })}
           onCreate={() => {
             onChange(addCommitment(commitments, { ...draft, label: draft.label.trim() }));
@@ -112,6 +122,7 @@ export function DaySheet({
         <CommitmentEditor
           commitment={editing}
           isNew={false}
+          dates={dates}
           onChange={(patch) => onChange(updateCommitment(commitments, editing.id, patch))}
           onCreate={() => setEditingId(null)}
           onRemove={() => {

@@ -256,7 +256,12 @@ export const sv = {
     remove: 'Ta bort åtagande',
     nameLabel: 'Namn',
     namePlaceholder: 'Skola, jobb, hämta Elsa …',
+    whenLabel: 'När',
+    repeats: 'Varje vecka',
+    once: 'En gång',
     daysLabel: 'Dagar',
+    dateLabel: 'Vilken dag',
+    onceHelp: 'Händer bara den här gången och lägger sig inte i veckorna framåt.',
     timeLabel: 'Tid',
     mealLabel: 'Jag måste hinna äta efter det här innan jag kan träna',
     mealHelp: 'Gäller typiskt efter ett arbetspass. Från skolan går de flesta direkt till gymmet.',
@@ -279,11 +284,21 @@ export const sv = {
     noDaysForKind: 'Åtagandet återkommer inte någon dag den här veckan, så det finns inget att ställa in eller flytta.',
   },
 
-  /** Beskriver ett undantag i listan: "Inställt", "Flyttat till 16:00–18:00". */
-  exception(kind: 'off' | 'moved' | 'extra', start?: Minutes, end?: Minutes): string {
+  /**
+   * Beskriver ett undantag i listan. "Extra pass" bara när det verkligen är ett
+   * extra tillfälle av något återkommande — en engångshändelse är inget extra,
+   * den är allt som finns.
+   */
+  exception(
+    kind: 'off' | 'moved' | 'extra',
+    start?: Minutes,
+    end?: Minutes,
+    recurring = true,
+  ): string {
     if (kind === 'off') return 'Inställt';
     const when = clockRange(start ?? 0, end ?? 0);
-    return kind === 'moved' ? `Flyttat till ${when}` : `Extra pass ${when}`;
+    if (kind === 'moved') return `Flyttat till ${when}`;
+    return recurring ? `Extra pass ${when}` : when;
   },
 
   weekdays: {

@@ -108,7 +108,14 @@ export function CommitmentsView({
                       key={`${item.commitmentId}-${item.index}`}
                       className="flex items-center justify-between gap-3 border-b border-line px-4 py-3.5 last:border-b-0"
                     >
-                      <span>
+                      <button
+                        type="button"
+                        // Bara en engångshändelse är sig själv. Ett undantag på
+                        // något återkommande hör hemma i det åtagandet, inte här.
+                        disabled={item.recurring}
+                        onClick={() => setEditingId(item.commitmentId)}
+                        className="flex-1 text-left"
+                      >
                         <span className="block text-[15px] font-semibold">
                           {item.label} · {strings.relativeDay(item.exception.date, today)}
                         </span>
@@ -117,9 +124,10 @@ export function CommitmentsView({
                             item.exception.kind,
                             'start' in item.exception ? item.exception.start : undefined,
                             'end' in item.exception ? item.exception.end : undefined,
+                            item.recurring,
                           )}
                         </span>
-                      </span>
+                      </button>
                       <button
                         type="button"
                         onClick={() =>
@@ -147,6 +155,7 @@ export function CommitmentsView({
         <CommitmentEditor
           commitment={draft}
           isNew
+          dates={dates}
           onChange={(patch) => setDraft({ ...draft, ...patch })}
           onCreate={() => {
             onChange(addCommitment(commitments, { ...draft, label: draft.label.trim() }));
@@ -161,6 +170,7 @@ export function CommitmentsView({
         <CommitmentEditor
           commitment={editing}
           isNew={false}
+          dates={dates}
           onChange={(patch) => onChange(updateCommitment(commitments, editing.id, patch))}
           onCreate={() => setEditingId(null)}
           onRemove={() => {
