@@ -239,6 +239,7 @@ export const sv = {
     add: 'Lägg till åtagande',
     addException: 'Lägg till undantag',
     mealAfterBadge: 'Mat efter',
+    noRecurring: 'Inget återkommande än.',
     noExceptions: 'Inga undantag den här veckan.',
     empty: {
       title: 'Vad tar upp din tid?',

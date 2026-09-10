@@ -7,6 +7,7 @@ import {
   addException,
   exceptionsInWeek,
   newCommitment,
+  recurringCommitments,
   removeCommitment,
   removeExceptionAt,
   updateCommitment,
@@ -41,6 +42,9 @@ export function CommitmentsView({
 
   const editing = commitments.find((item) => item.id === editingId) ?? null;
   const exceptions = exceptionsInWeek(commitments, dates);
+  // En markering dragen i veckovyn är inget återkommande åtagande — den hör
+  // bara hemma under "Den här veckan", inte på två ställen samtidigt.
+  const recurring = recurringCommitments(commitments);
 
   return (
     <>
@@ -51,7 +55,7 @@ export function CommitmentsView({
           </p>
         )}
 
-        {commitments.length === 0 ? (
+        {recurring.length === 0 && exceptions.length === 0 ? (
           <EmptyState
             title={strings.commitments.empty.title}
             body={strings.commitments.empty.body}
@@ -63,8 +67,11 @@ export function CommitmentsView({
             <ScreenHeader title={strings.commitments.title} lead={strings.commitments.lead} />
 
             <Section title={strings.commitments.recurring}>
+              {recurring.length === 0 ? (
+                <p className="text-[15px] text-ink-soft">{strings.commitments.noRecurring}</p>
+              ) : (
               <Card>
-                {commitments.map((commitment) => (
+                {recurring.map((commitment) => (
                   <Row key={commitment.id} onClick={() => setEditingId(commitment.id)}>
                     <span className="flex items-center gap-2">
                       <span className="text-[17px] font-semibold">{commitment.label}</span>
@@ -83,6 +90,7 @@ export function CommitmentsView({
                   </Row>
                 ))}
               </Card>
+              )}
               <div className="mt-3">
                 <Button variant="quiet" onClick={() => setDraft(newCommitment())}>
                   {strings.commitments.add}

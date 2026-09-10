@@ -4,6 +4,7 @@ import {
   exceptionsInWeek,
   isUsable,
   newCommitment,
+  recurringCommitments,
   recurringDatesInWeek,
   removeCommitment,
   removeExceptionAt,
@@ -137,5 +138,55 @@ describe('newCommitment', () => {
     expect(fresh.weekdays).toEqual([]);
     expect(fresh.start).toBe(hhmm('08:00'));
     expect(fresh.end).toBe(hhmm('16:00'));
+  });
+});
+
+describe('vad som räknas som återkommande', () => {
+  it('tar bara med åtaganden som har fasta veckodagar', () => {
+    const markering = commitment({ id: 'dragen', label: 'Upptaget', weekdays: [] });
+    const skola = commitment({ id: 'skola' });
+    expect(recurringCommitments([skola, markering]).map((item) => item.id)).toEqual(['skola']);
+  });
+
+  it('utelämnar en markering även när den har undantag', () => {
+    const markering = commitment({
+      id: 'dragen',
+      weekdays: [],
+      exceptions: [{ date: '2025-09-01', kind: 'extra', start: 600, end: 700 }],
+    });
+    expect(recurringCommitments([markering])).toEqual([]);
+  });
+});
+
+describe('städning när ett undantag tas bort', () => {
+  it('tar bort ett åtagande som inte har något kvar', () => {
+    const markering = commitment({
+      id: 'dragen',
+      weekdays: [],
+      exceptions: [{ date: '2025-09-01', kind: 'extra', start: 600, end: 700 }],
+    });
+    expect(removeExceptionAt([markering], 'dragen', 0)).toEqual([]);
+  });
+
+  it('behåller ett åtagande som fortfarande återkommer', () => {
+    const skola = commitment({
+      id: 'skola',
+      exceptions: [{ date: '2025-09-05', kind: 'off' }],
+    });
+    const kvar = removeExceptionAt([skola], 'skola', 0);
+    expect(kvar).toHaveLength(1);
+    expect(kvar[0]!.exceptions).toEqual([]);
+  });
+
+  it('behåller ett åtagande som har fler undantag kvar', () => {
+    const markering = commitment({
+      id: 'dragen',
+      weekdays: [],
+      exceptions: [
+        { date: '2025-09-01', kind: 'extra', start: 600, end: 700 },
+        { date: '2025-09-02', kind: 'extra', start: 600, end: 700 },
+      ],
+    });
+    expect(removeExceptionAt([markering], 'dragen', 0)).toHaveLength(1);
   });
 });

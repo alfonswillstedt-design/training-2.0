@@ -74,11 +74,27 @@ export function removeExceptionAt(
   commitmentId: string,
   index: number,
 ): Commitment[] {
-  return list.map((commitment) =>
-    commitment.id === commitmentId
-      ? { ...commitment, exceptions: commitment.exceptions.filter((_, at) => at !== index) }
-      : commitment,
-  );
+  return list
+    .map((commitment) =>
+      commitment.id === commitmentId
+        ? { ...commitment, exceptions: commitment.exceptions.filter((_, at) => at !== index) }
+        : commitment,
+    )
+    // Ett åtagande utan fasta dagar och utan undantag tar inte upp någon tid
+    // och syns ingenstans. Det ska inte ligga kvar som osynligt skräp.
+    .filter((commitment) => commitment.weekdays.length > 0 || commitment.exceptions.length > 0);
+}
+
+/**
+ * Åtagandena som faktiskt återkommer.
+ *
+ * Ett åtagande utan fasta veckodagar är inte återkommande — det finns bara som
+ * undantag för enskilda datum, vilket är formen en markering i veckovyn tar.
+ * Att lista det under "Återkommande" påstår något som inte är sant, och gör
+ * att samma sak dyker upp två gånger på samma skärm.
+ */
+export function recurringCommitments(list: Commitment[]): Commitment[] {
+  return list.filter((commitment) => commitment.weekdays.length > 0);
 }
 
 /** Ett undantag tillsammans med åtagandet det hör till, för listan. */
