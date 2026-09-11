@@ -6,21 +6,31 @@ import { strings } from '../../strings';
 
 /**
  * Export och import som JSON — hela backup-lösningen när det inte finns någon
- * backend, och vägen in i en framtida native-app.
+ * backend, och vägen in i en framtida native-app. Här ligger också vägen
+ * tillbaka till ett tomt läge.
  *
  * Hör hemma under Inställningar. De finns inte förrän steg 6, så sektionen
  * bor tills vidare sist i Åtaganden och flyttas dit oförändrad.
  */
+
+/**
+ * Det som väntar på ett ja. Import och radering delar ruta, eftersom de
+ * ställer samma fråga: vad försvinner om jag trycker?
+ */
+type Pending = { kind: 'import'; data: AppData } | { kind: 'reset' };
+
 export function BackupSection({
   data,
   today,
   onReplace,
+  onReset,
 }: {
   data: AppData;
   today: IsoDate;
   onReplace: (data: AppData) => void;
+  onReset: () => boolean;
 }) {
-  const [pending, setPending] = useState<AppData | null>(null);
+  const [pending, setPending] = useState<Pending | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -39,7 +49,7 @@ export function BackupSection({
     setPending(null);
 
     const result = importJson(await file.text());
-    if (result.ok) setPending(result.data);
+    if (result.ok) setPending({ kind: 'import', data: result.data });
     else setError(strings.backup.failed[result.reason]);
   }
 
@@ -56,6 +66,15 @@ export function BackupSection({
         </Button>
         <Button variant="quiet" onClick={() => fileInput.current?.click()}>
           {strings.backup.import}
+        </Button>
+        <Button
+          variant="quiet"
+          onClick={() => {
+            setError(null);
+            setPending({ kind: 'reset' });
+          }}
+        >
+          {strings.backup.reset}
         </Button>
       </div>
 
@@ -84,21 +103,33 @@ export function BackupSection({
 
       {pending && (
         <div className="mt-4 rounded-soft border border-line bg-raised p-5">
-          <p className="text-[17px] font-semibold">{strings.backup.confirmTitle}</p>
+          <p className="text-[17px] font-semibold">
+            {pending.kind === 'import' ? strings.backup.confirmTitle : strings.backup.resetTitle}
+          </p>
           <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
-            {strings.backup.confirmBody(
-              pending.commitments.length,
-              pending.completedSessions.length,
-            )}
+            {pending.kind === 'import'
+              ? strings.backup.confirmBody(
+                  pending.data.commitments.length,
+                  pending.data.completedSessions.length,
+                )
+              : strings.backup.resetBody(data.commitments.length, data.completedSessions.length)}
           </p>
           <div className="mt-5 flex flex-col gap-2">
             <Button
+              variant={pending.kind === 'import' ? 'primary' : 'danger'}
               onClick={() => {
-                onReplace(pending);
-                setPending(null);
+                if (pending.kind === 'import') {
+                  onReplace(pending.data);
+                  setPending(null);
+                  return;
+                }
+                // Gick raderingen inte igenom ligger datan kvar. Att stänga
+                // rutan då vore en lögn — rutan står kvar med felet i stället.
+                if (onReset()) setPending(null);
+                else setError(strings.backup.resetFailed);
               }}
             >
-              {strings.backup.replace}
+              {pending.kind === 'import' ? strings.backup.replace : strings.backup.resetConfirm}
             </Button>
             <Button variant="quiet" onClick={() => setPending(null)}>
               {strings.backup.cancel}

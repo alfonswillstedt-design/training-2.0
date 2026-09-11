@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { hhmm } from '../../src/scheduling/time';
 import { emptyData, SCHEMA_VERSION, type AppData } from '../../src/storage/schema';
 import {
+  clear,
   exportJson,
   importJson,
   load,
@@ -134,5 +135,48 @@ describe('export och import', () => {
       commitments: [broken.commitments[0], { id: 'trasig' }],
     });
     expect(importJson(text).ok).toBe(false);
+  });
+});
+
+describe('clear', () => {
+  it('tar bort allt appen sparat, så nästa start är ett första besök', () => {
+    const storage = new MemoryStorage();
+    save(storage, sample());
+
+    clear(storage);
+
+    expect(storage.getItem(STORAGE_KEY)).toBeNull();
+    expect(load(storage).status).toBe('empty');
+  });
+
+  it('tömmer också karantänen — annars ligger den kvar osynlig', () => {
+    const storage = new MemoryStorage();
+    storage.setItem(STORAGE_KEY, 'inte json');
+    load(storage);
+    expect(storage.getItem(QUARANTINE_KEY)).not.toBeNull();
+
+    clear(storage);
+
+    expect(storage.getItem(QUARANTINE_KEY)).toBeNull();
+  });
+
+  it('säger ifrån när lagringen inte går att röra i stället för att kasta', () => {
+    const storage = new MemoryStorage();
+    save(storage, sample());
+    storage.removeItem = () => {
+      throw new DOMException('SecurityError');
+    };
+
+    expect(clear(storage)).toBe(false);
+  });
+
+  it('rör ingenting annat i lagringen', () => {
+    const storage = new MemoryStorage();
+    storage.setItem('nagot-annat', 'kvar');
+    save(storage, sample());
+
+    clear(storage);
+
+    expect(storage.getItem('nagot-annat')).toBe('kvar');
   });
 });

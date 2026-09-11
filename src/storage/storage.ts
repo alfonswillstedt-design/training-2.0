@@ -55,6 +55,26 @@ export function load(storage: Storage): LoadResult {
   return { status: 'unreadable', data: emptyData() };
 }
 
+/**
+ * Raderar allt appen sparat, både datan och karantänen.
+ *
+ * Det är ingen felhantering utan en väg tillbaka till första besöket: att
+ * kunna prova appen från början utan att rensa hela webbläsaren, och att ta
+ * sig ur ett läge man inte vill vara i. Bara appens egna nycklar rörs.
+ *
+ * Falskt betyder att lagringen sa nej — då ligger datan kvar och användaren
+ * ska få veta det i stället för att tro att den är borta.
+ */
+export function clear(storage: Storage): boolean {
+  try {
+    storage.removeItem(STORAGE_KEY);
+    storage.removeItem(QUARANTINE_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Sparar. Falskt betyder att lagringen sa nej — full disk eller privat läge. */
 export function save(storage: Storage, data: AppData): boolean {
   try {

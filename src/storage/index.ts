@@ -1,6 +1,7 @@
 export { emptyData, parseAppData, SCHEMA_VERSION, type AppData } from './schema';
 export { migrations, runMigrations, type Migration, type MigrationResult } from './migrate';
 export {
+  clear,
   exportJson,
   importJson,
   load,

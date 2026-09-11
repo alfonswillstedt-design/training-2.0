@@ -10,7 +10,7 @@ import { WeekView } from './features/week/WeekView';
 import { fromIsoDate, startOfWeek, toIsoDate, weekDates } from './scheduling/date';
 import { planWeek } from './scheduling/planWeek';
 import type { Commitment, CompletedSession, Preferences, TrainingPlan } from './scheduling/types';
-import { load, save, type AppData } from './storage';
+import { clear, emptyData, load, save, type AppData } from './storage';
 import { strings } from './strings';
 
 /**
@@ -28,6 +28,9 @@ export function App() {
   const [initial] = useState(() => load(window.localStorage));
   const [data, setData] = useState<AppData>(initial.data);
   const [saving, setSaving] = useState(true);
+  // Statusen är ett tillstånd och inte bara det som lästes vid start, eftersom
+  // en radering gör karantänen inaktuell — notisen ska försvinna med datan.
+  const [status, setStatus] = useState(initial.status);
 
   useEffect(() => {
     setSaving(save(window.localStorage, data));
@@ -43,6 +46,23 @@ export function App() {
   const setPlan = (next: TrainingPlan) => setData((current) => ({ ...current, plan: next }));
   const patchPreferences = (patch: Partial<Preferences>) =>
     setData((current) => ({ ...current, preferences: { ...current.preferences, ...patch } }));
+
+  /**
+   * Tillbaka till första besöket. Radera först och sätt om appen sedan — går
+   * lagringen inte att röra ska skärmen visa det som faktiskt ligger kvar.
+   *
+   * Falskt betyder att ingenting raderades, och rutan som frågade står kvar
+   * med ett besked i stället för att stängas som om det gått bra.
+   */
+  const resetAll = (): boolean => {
+    if (!clear(window.localStorage)) return false;
+    setPreview(null);
+    setSettingsOpen(false);
+    setStatus('empty');
+    setTab('next');
+    setData(emptyData());
+    return true;
+  };
 
   // Klockan läses när appen monteras. Den tickar inte — appen öppnas, svarar
   // och stängs igen.
@@ -116,7 +136,7 @@ export function App() {
           today={today}
           onChange={setCommitments}
           note={
-            initial.status === 'unreadable'
+            status === 'unreadable'
               ? strings.storage.unreadable
               : saving
                 ? undefined
@@ -136,7 +156,9 @@ export function App() {
           preferences={preferences}
           onChange={patchPreferences}
           onClose={() => setSettingsOpen(false)}
-          footer={<BackupSection data={data} today={today} onReplace={setData} />}
+          footer={
+            <BackupSection data={data} today={today} onReplace={setData} onReset={resetAll} />
+          }
         />
       )}
     </>

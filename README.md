@@ -73,6 +73,12 @@ ny version i stället för att raderas. Data som inte går att läsa läggs i
 karantän under en egen nyckel i stället för att skrivas över. Export och import
 som JSON är hela backup-lösningen, och vägen in i en framtida native-app.
 
+Under Data finns också vägen tillbaka till ett tomt läge: **Börja om från
+början** raderar appens egna nycklar och startar om vid första besökets frågor.
+Frågan innan säger med riktiga siffror vad som försvinner. Den finns för att
+kunna prova appen från början utan att rensa hela webbläsaren — och för att
+ingen ska behöva ett konto för att bli av med sin data.
+
 ## Riktning efter demon
 
 Appen finns i två nivåer. **Schemaläggningen i appen** är den ena, och den är

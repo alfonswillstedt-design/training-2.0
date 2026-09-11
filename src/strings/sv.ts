@@ -132,6 +132,15 @@ export const sv = {
       `${count(sessions, 'loggat pass', 'loggade pass')}. Det du har nu skrivs över.`,
     replace: 'Ersätt allt',
     cancel: 'Avbryt',
+    reset: 'Börja om från början',
+    resetTitle: 'Radera allt och börja om?',
+    resetBody: (commitments: number, sessions: number) =>
+      `${count(commitments, 'åtagande', 'åtaganden')}, ` +
+      `${count(sessions, 'loggat pass', 'loggade pass')}, upplägget och inställningarna ` +
+      'raderas. Appen startar om med de första frågorna. Exportera först om du vill kunna ' +
+      'få tillbaka det här läget.',
+    resetConfirm: 'Radera allt',
+    resetFailed: 'Webbläsaren lät inte appen radera datan. Ingenting har ändrats.',
     failed: {
       'invalid-json': 'Filen är inte en giltig JSON-fil.',
       unreadable: 'Filen går inte att läsa som ett träningsschema. Ingenting har ändrats.',
