@@ -20,8 +20,6 @@ import { strings } from './strings';
 export function App() {
   const [tab, setTab] = useState<TabId>('next');
   const [settingsOpen, setSettingsOpen] = useState(false);
-  // Veckan som visas medan ett drag pågår, innan något skrivits.
-  const [preview, setPreview] = useState<Commitment[] | null>(null);
 
   // Läses en gång. Gick sparad data inte att läsa startar appen tom, men
   // säger ifrån — och den oläsbara datan ligger kvar i karantän.
@@ -36,8 +34,7 @@ export function App() {
     setSaving(save(window.localStorage, data));
   }, [data]);
 
-  const { completedSessions, preferences, plan } = data;
-  const commitments = preview ?? data.commitments;
+  const { commitments, completedSessions, preferences, plan } = data;
 
   const setCommitments = (next: Commitment[]) =>
     setData((current) => ({ ...current, commitments: next }));
@@ -56,7 +53,6 @@ export function App() {
    */
   const resetAll = (): boolean => {
     if (!clear(window.localStorage)) return false;
-    setPreview(null);
     setSettingsOpen(false);
     setStatus('empty');
     setTab('next');
@@ -123,9 +119,8 @@ export function App() {
         <WeekView
           days={days}
           today={today}
-          commitments={data.commitments}
+          commitments={commitments}
           onChange={setCommitments}
-          onPreview={setPreview}
         />
       )}
 

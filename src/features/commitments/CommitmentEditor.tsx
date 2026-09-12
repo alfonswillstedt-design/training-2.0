@@ -68,15 +68,20 @@ export function CommitmentEditor({
     onChange({ weekdays: [], exceptions: [] });
   }
 
+  // Rutan är densamma, men orden ska beskriva det man faktiskt lägger in. Ett
+  // åtagande är något som återkommer; en middag på torsdag är en händelse.
+  const once = repeat === 'once';
+  const newTitle = once ? strings.commitmentEditor.newOnceTitle : strings.commitmentEditor.newTitle;
+
   return (
     <Sheet
-      title={isNew ? strings.commitmentEditor.newTitle : strings.commitmentEditor.editTitle}
+      title={isNew ? newTitle : strings.commitmentEditor.editTitle}
       closeLabel={isNew ? strings.commitmentEditor.cancel : strings.commitmentEditor.done}
       onClose={onClose}
       footer={
         isNew ? (
           <Button onClick={onCreate} disabled={!canCreate}>
-            {strings.commitmentEditor.create}
+            {once ? strings.commitmentEditor.createOnce : strings.commitmentEditor.create}
           </Button>
         ) : (
           <Button variant="danger" onClick={onRemove}>
@@ -90,7 +95,11 @@ export function CommitmentEditor({
           value={commitment.label}
           label={strings.commitmentEditor.nameLabel}
           onChange={(label) => onChange({ label })}
-          placeholder={strings.commitmentEditor.namePlaceholder}
+          placeholder={
+            once
+              ? strings.commitmentEditor.oncePlaceholder
+              : strings.commitmentEditor.namePlaceholder
+          }
           autoFocus={isNew}
         />
       </Field>
@@ -106,7 +115,7 @@ export function CommitmentEditor({
         />
       </Field>
 
-      {repeat === 'weekly' ? (
+      {!once ? (
         <Field label={strings.commitmentEditor.daysLabel}>
           <WeekdayPicker
             selected={commitment.weekdays}

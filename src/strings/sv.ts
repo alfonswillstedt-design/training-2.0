@@ -62,11 +62,12 @@ export const sv = {
 
   week: {
     title: 'Veckan',
-    lead: 'Dra på en dag för att markera upptagen tid. Tryck för att ändra den.',
-    markedBusy: 'Upptaget',
+    lead: 'Tryck på en dag för att ändra den. Plus lägger till något som bara händer den dagen.',
     /** Svarar på frågan en vilodag lämnar öppen: vart tog träningen vägen? */
     nextIs: (day: string, time: string) => `Nästa pass: ${day}, ${time}.`,
-    trackLabel: (day: string) => `${day} — dra för att markera upptagen tid`,
+    trackLabel: (day: string) => `${day} — dagens tider`,
+    /** Plusknappen på varje dagrad. Skärmläsaren ska höra vilken dag det gäller. */
+    addOn: (day: string) => `Lägg till något på ${day}`,
     free: 'Hela dagen ledig.',
     commitmentsLabel: 'Den här dagen',
     noCommitments: 'Inget åtagande den här dagen.',
@@ -281,6 +282,10 @@ export const sv = {
 
   commitmentEditor: {
     newTitle: 'Nytt åtagande',
+    /** Samma ruta, men det man lägger in är en händelse och inget åtagande. */
+    newOnceTitle: 'Ny händelse',
+    oncePlaceholder: 'Plugga, tandläkare, middag …',
+    createOnce: 'Lägg till',
     editTitle: 'Ändra åtagande',
     done: 'Klar',
     cancel: 'Avbryt',

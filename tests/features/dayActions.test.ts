@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   clearDay,
+  newOneOff,
   deviatingDates,
   exceptionOn,
   makeWeeklyFromDay,
@@ -292,5 +293,31 @@ describe('exceptionOn och deviatingDates', () => {
     expect(deviatingDates(repeatOnDate([jobb], 'jobb', ONSDAG), [...VECKAN])).toEqual(
       new Set([ONSDAG]),
     );
+  });
+});
+
+describe('newOneOff', () => {
+  it('ligger på dagen man tryckte plus på, utan fasta veckodagar', () => {
+    const händelse = newOneOff(ONSDAG);
+
+    expect(händelse.weekdays).toEqual([]);
+    expect(händelse.exceptions).toEqual([
+      { date: ONSDAG, kind: 'extra', start: händelse.start, end: händelse.end },
+    ]);
+  });
+
+  it('börjar på kvällen, för det är dit man lägger något tillfälligt', () => {
+    const händelse = newOneOff(ONSDAG);
+
+    expect(händelse.start).toBe(hhmm('18:00'));
+    expect(händelse.end).toBe(hhmm('19:00'));
+  });
+
+  it('har inget namn — det är det enda man måste skriva', () => {
+    expect(newOneOff(ONSDAG).label).toBe('');
+  });
+
+  it('ger varje händelse ett eget id', () => {
+    expect(newOneOff(ONSDAG).id).not.toBe(newOneOff(ONSDAG).id);
   });
 });

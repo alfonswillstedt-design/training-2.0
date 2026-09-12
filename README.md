@@ -14,15 +14,22 @@ eller Strong, inte ersätta dem.
 ## Läge
 
 Alla nio steg i byggordningen är klara: schemaläggningsmotorn med tester, alla
-fyra flikar, lagringen, första besökets frågor, veckovyns signaturinteraktion,
+fyra flikar, lagringen, första besökets frågor, veckovyn,
 genomgången av tomma tillstånd, mörkt läge och tillgänglighet, och PWA:n. Allt sparas i localStorage
 under en enda nyckel och kan exporteras och importeras som JSON.
 
-Veckovyns signaturinteraktion finns: dra på en dag för att markera upptagen
-tid och se träningsblocket flytta sig medan fingret rör sig. Draget matas
-genom samma motor som allt annat, så blocket som rör sig är ett riktigt
-resultat — inte en animation som låtsas. Ingenting skrivs förrän man släpper,
-och samma sak går att göra utan drag genom att trycka på dagen.
+**Draget är borttaget.** Veckovyns signaturinteraktion var att markera upptagen
+tid med fingret och se träningsblocket flytta sig medan man drog. Den byggdes,
+den fungerade, och den var fel verktyg för uppgiften: en tillfällig händelse
+har ett namn och ett klockslag man redan vet, och att sikta fram klockslaget
+med fingret på en rad som är sexton timmar bred var långsamt och oprecist. Ett
+plus på varje dagrad går rakt på inmatningen i stället — 44 px, intill dagens
+tider, och det öppnar samma ruta som allt annat.
+
+Återkopplingen försvann inte med draget. Motorn räknar om vid varje ändring, så
+passet flyttar sig direkt när tiden ställs; det som försvann var fingret, inte
+det levande resultatet. Med draget gick också `minutesAt` och `dragInterval` ur
+geometrin och `preview` ur `App` — en interaktion mindre att hålla vid liv.
 
 **Veckan är där en enskild dag ändras.** Trycker man på ett åtagande under en
 dag ändrar man den dagen — inget annat. Tidigare öppnade samma tryck den
@@ -38,6 +45,11 @@ migrering och ändrar ingenting i motorn.
 Det som oftast händer — ett extrapass på jobbet — ligger som en knapp i dagen
 med de vanliga tiderna ifyllda: tre tryck i stället för nio. Dagar som inte
 följer det vanliga märks med ÄNDRAD i veckan.
+
+Rutan som lägger in något nytt byter ord efter vad det är: ett åtagande
+återkommer varje vecka, en middag på torsdag är en händelse. Titel, exempel och
+knapp följer med valet, och en händelse lagd från plus börjar 18:00 — det är
+dit man lägger något i efterhand, inte mitt i skoldagen.
 
 Ordet "undantag" finns inte längre i gränssnittet. Det beskrev maskineriet,
 inte vad användaren gjorde, och tvingade en att leta i fel flik efter appens

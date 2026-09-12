@@ -37,6 +37,25 @@ export function newCommitment(): Commitment {
   };
 }
 
+/**
+ * En tillfällig händelse på en bestämd dag — det plus-knappen i veckan skapar.
+ *
+ * Kvällen som förval: det man lägger in i efterhand är plugg, träffar och
+ * ärenden efter dagen, inte något som krockar med skolan. Ett åtagandes förval
+ * (08:00–16:00) beskriver en arbetsdag och vore fel gissning här.
+ */
+export function newOneOff(date: IsoDate): Commitment {
+  const start = hhmm('18:00');
+  const end = hhmm('19:00');
+  return {
+    ...newCommitment(),
+    weekdays: [],
+    start,
+    end,
+    exceptions: [{ date, kind: 'extra', start, end }],
+  };
+}
+
 export function addCommitment(list: Commitment[], commitment: Commitment): Commitment[] {
   return [...list, commitment];
 }

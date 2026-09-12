@@ -1,25 +1,12 @@
 import { useMemo, useState } from 'react';
-import { clock, Screen, ScreenHeader } from '../../design';
-import type { Commitment, IsoDate, Minutes, PlannedDay } from '../../scheduling/types';
+import { Button, clock, Screen, ScreenHeader } from '../../design';
+import type { Commitment, IsoDate, PlannedDay } from '../../scheduling/types';
 import { strings } from '../../strings';
-import { deviatingDates, newCommitment } from '../commitments/commitmentActions';
+import { addCommitment, deviatingDates, newOneOff } from '../commitments/commitmentActions';
+import { CommitmentEditor } from '../commitments/CommitmentEditor';
 import { DaySheet } from './DaySheet';
 import { nextSessionAfter, type DayWithSession } from './weekSummary';
-import {
-  dayTrack,
-  dragInterval,
-  minutesAt,
-  weekRange,
-  type TimeRange,
-  type TrackSegment,
-} from './weekTrack';
-
-interface Drag {
-  id: string;
-  date: IsoDate;
-  anchor: Minutes;
-  current: Minutes;
-}
+import { dayTrack, weekRange, type TrackSegment } from './weekTrack';
 
 /**
  * Flik 2 — veckan.
@@ -28,83 +15,34 @@ interface Drag {
  * jämföra med ögat. Går ett pass inte att placera visas dagen med en
  * förklaring, aldrig ett tomt hål.
  *
- * Signaturinteraktionen bor här: dra på en dag för att markera upptagen tid,
- * och se träningsblocket flytta sig medan fingret rör sig. Draget matas genom
- * samma motor som allt annat, så blocket som flyttar sig är ett riktigt
- * resultat — inte en animation som låtsas. Ingenting skrivs förrän man
- * släpper.
+ * Här fanns tidigare ett drag: markera upptagen tid med fingret och se passet
+ * flytta sig medan man drog. Det såg bra ut och var fel verktyg för uppgiften
+ * — en tillfällig händelse har ett namn och ett klockslag man vet, och att
+ * sikta fram dem med fingret på en rad som är sexton timmar bred var långsamt
+ * och oprecist. Ett plus per dag går rakt på inmatningen i stället.
  *
- * Draget är ett komplement, aldrig enda vägen: samma sak går att göra genom
- * att trycka på dagen och lägga till ett åtagande.
+ * Återkopplingen är inte borta med draget: motorn räknar om vid varje ändring,
+ * så passet flyttar sig direkt när tiden ställs.
  */
 export function WeekView({
   days,
   today,
   commitments,
   onChange,
-  onPreview,
 }: {
   days: PlannedDay[];
   today: IsoDate;
   commitments: Commitment[];
   onChange: (next: Commitment[]) => void;
-  /** Visar en vecka som ännu inte är sparad, medan fingret är nere. */
-  onPreview: (next: Commitment[] | null) => void;
 }) {
   const [openDate, setOpenDate] = useState<IsoDate | null>(null);
-  const [drag, setDrag] = useState<Drag | null>(null);
+  const [draft, setDraft] = useState<Commitment | null>(null);
 
   const range = useMemo(() => weekRange(days), [days]);
   const open = days.find((day) => day.date === openDate) ?? null;
 
-  /** Åtagandena plus den markering som håller på att dras. */
-  function withDraft(current: Drag): Commitment[] {
-    const span = dragInterval(current.anchor, current.current);
-    if (!span) return commitments;
-
-    return [
-      ...commitments,
-      {
-        id: current.id,
-        label: strings.week.markedBusy,
-        // Ingen fast veckodag: markeringen gäller bara den här dagen.
-        weekdays: [],
-        start: 0,
-        end: 0,
-        needsMealAfter: false,
-        exceptions: [{ date: current.date, kind: 'extra', ...span }],
-      },
-    ];
-  }
-
-  function start(date: IsoDate, fraction: number) {
-    const at = minutesAt(fraction, range);
-    setDrag({ id: newCommitment().id, date, anchor: at, current: at });
-  }
-
-  function move(date: IsoDate, fraction: number) {
-    if (!drag || drag.date !== date) return;
-    const next = { ...drag, current: minutesAt(fraction, range) };
-    setDrag(next);
-    onPreview(withDraft(next));
-  }
-
-  function end() {
-    if (!drag) return;
-    const next = withDraft(drag);
-    setDrag(null);
-    onPreview(null);
-    if (next.length !== commitments.length) onChange(next);
-  }
-
-  function cancel() {
-    setDrag(null);
-    onPreview(null);
-  }
-
   // En dag som inte följer det vanliga ska synas i veckan. Annars är den enda
-  // vägen tillbaka att minnas vad man ändrade — och listan över avvikelser
-  // finns inte längre i Åtaganden.
+  // vägen tillbaka att minnas vad man ändrade.
   const deviating = deviatingDates(
     commitments,
     days.map((day) => day.date),
@@ -124,12 +62,8 @@ export function WeekView({
                 changed={deviating.has(day.date)}
                 nextAfter={day.session === null ? nextSessionAfter(days, day.date) : null}
                 segments={dayTrack(day, range)}
-                dragging={drag?.date === day.date}
                 onOpen={() => setOpenDate(day.date)}
-                onDragStart={(fraction) => start(day.date, fraction)}
-                onDragMove={(fraction) => move(day.date, fraction)}
-                onDragEnd={end}
-                onDragCancel={cancel}
+                onAdd={() => setDraft(newOneOff(day.date))}
               />
             </li>
           ))}
@@ -145,6 +79,21 @@ export function WeekView({
           onClose={() => setOpenDate(null)}
         />
       )}
+
+      {draft && (
+        <CommitmentEditor
+          commitment={draft}
+          isNew
+          dates={days.map((day) => day.date)}
+          onChange={(patch) => setDraft({ ...draft, ...patch })}
+          onCreate={() => {
+            onChange(addCommitment(commitments, { ...draft, label: draft.label.trim() }));
+            setDraft(null);
+          }}
+          onRemove={() => setDraft(null)}
+          onClose={() => setDraft(null)}
+        />
+      )}
     </>
   );
 }
@@ -155,12 +104,8 @@ function DayRow({
   changed,
   nextAfter,
   segments,
-  dragging,
   onOpen,
-  onDragStart,
-  onDragMove,
-  onDragEnd,
-  onDragCancel,
+  onAdd,
 }: {
   day: PlannedDay;
   isToday: boolean;
@@ -169,18 +114,9 @@ function DayRow({
   /** Nästa dag med ett pass, när den här dagen inte fick något. */
   nextAfter: DayWithSession | null;
   segments: TrackSegment[];
-  dragging: boolean;
   onOpen: () => void;
-  onDragStart: (fraction: number) => void;
-  onDragMove: (fraction: number) => void;
-  onDragEnd: () => void;
-  onDragCancel: () => void;
+  onAdd: () => void;
 }) {
-  const fractionOf = (event: React.PointerEvent<HTMLDivElement>) => {
-    const box = event.currentTarget.getBoundingClientRect();
-    return box.width === 0 ? 0 : (event.clientX - box.left) / box.width;
-  };
-
   return (
     <div
       className={`overflow-hidden rounded-soft border bg-raised ${
@@ -230,39 +166,49 @@ function DayRow({
         )}
       </button>
 
-      {/* touch-pan-y låter sidan scrolla vertikalt medan draget äger x-led. */}
-      <div
-        role="slider"
-        tabIndex={-1}
-        aria-label={strings.week.trackLabel(strings.dayLabel(day.date))}
-        aria-valuetext={day.session ? clock(day.session.start) : strings.week.free}
-        onPointerDown={(event) => {
-          event.currentTarget.setPointerCapture(event.pointerId);
-          onDragStart(fractionOf(event));
-        }}
-        onPointerMove={(event) => {
-          if (event.buttons !== 0) onDragMove(fractionOf(event));
-        }}
-        onPointerUp={onDragEnd}
-        onPointerCancel={onDragCancel}
-        className={`relative mx-4 mt-3 mb-4 h-11 touch-pan-y overflow-hidden rounded-tight ${
-          dragging ? 'bg-accent-wash' : 'bg-paper'
-        }`}
-      >
-        {segments.map((segment) => (
-          <span
-            key={segment.key}
-            className={
-              segment.kind === 'session'
-                ? // Den enda animationen i appen: passet glider till sin nya tid
-                  // medan fingret drar, i stället för att hoppa.
-                  'absolute inset-y-0 bg-accent transition-[left,width] duration-200 ease-out'
-                : 'absolute inset-y-0 bg-line'
-            }
-            style={{ left: `${segment.offset * 100}%`, width: `${segment.width * 100}%` }}
-          />
-        ))}
+      <div className="mx-4 mt-3 mb-4 flex items-center gap-3">
+        <div
+          aria-label={strings.week.trackLabel(strings.dayLabel(day.date))}
+          className="relative h-11 flex-1 overflow-hidden rounded-tight bg-paper"
+        >
+          {segments.map((segment) => (
+            <span
+              key={segment.key}
+              className={
+                segment.kind === 'session'
+                  ? 'absolute inset-y-0 bg-accent'
+                  : 'absolute inset-y-0 bg-line'
+              }
+              style={{ left: `${segment.offset * 100}%`, width: `${segment.width * 100}%` }}
+            />
+          ))}
+        </div>
+
+        {/* Plus står intill dagens tider, inte i en meny: det man lägger till
+            är tid på just den dagen. */}
+        <button
+          type="button"
+          onClick={onAdd}
+          aria-label={strings.week.addOn(strings.dayLabel(day.date))}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-tight border border-line text-ink-soft"
+        >
+          <PlusIcon />
+        </button>
       </div>
     </div>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+      <path
+        d="M9 3.5v11M3.5 9h11"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
   );
 }
