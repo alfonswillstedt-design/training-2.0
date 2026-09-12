@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { clock, Screen, ScreenHeader } from '../../design';
 import type { Commitment, IsoDate, Minutes, PlannedDay } from '../../scheduling/types';
 import { strings } from '../../strings';
-import { newCommitment } from '../commitments/commitmentActions';
+import { deviatingDates, newCommitment } from '../commitments/commitmentActions';
 import { DaySheet } from './DaySheet';
 import { nextSessionAfter, type DayWithSession } from './weekSummary';
 import {
@@ -102,6 +102,14 @@ export function WeekView({
     onPreview(null);
   }
 
+  // En dag som inte följer det vanliga ska synas i veckan. Annars är den enda
+  // vägen tillbaka att minnas vad man ändrade — och listan över avvikelser
+  // finns inte längre i Åtaganden.
+  const deviating = deviatingDates(
+    commitments,
+    days.map((day) => day.date),
+  );
+
   return (
     <>
       <Screen>
@@ -113,6 +121,7 @@ export function WeekView({
               <DayRow
                 day={day}
                 isToday={day.date === today}
+                changed={deviating.has(day.date)}
                 nextAfter={day.session === null ? nextSessionAfter(days, day.date) : null}
                 segments={dayTrack(day, range)}
                 dragging={drag?.date === day.date}
@@ -143,6 +152,7 @@ export function WeekView({
 function DayRow({
   day,
   isToday,
+  changed,
   nextAfter,
   segments,
   dragging,
@@ -154,6 +164,8 @@ function DayRow({
 }: {
   day: PlannedDay;
   isToday: boolean;
+  /** Dagen avviker från det som återkommer — ändrad, inställd eller extra. */
+  changed: boolean;
   /** Nästa dag med ett pass, när den här dagen inte fick något. */
   nextAfter: DayWithSession | null;
   segments: TrackSegment[];
@@ -184,6 +196,11 @@ function DayRow({
             {isToday && (
               <span className="text-[11px] font-semibold tracking-[0.12em] text-ink-faint uppercase">
                 {strings.today.label}
+              </span>
+            )}
+            {changed && (
+              <span className="text-[11px] font-semibold tracking-[0.12em] text-ink-faint uppercase">
+                {strings.week.deviates}
               </span>
             )}
           </span>

@@ -70,8 +70,33 @@ export const sv = {
     free: 'Hela dagen ledig.',
     commitmentsLabel: 'Den här dagen',
     noCommitments: 'Inget åtagande den här dagen.',
-    add: 'Lägg till åtagande',
+    add: 'Något annat',
     close: 'Klar',
+    /** Snabbvägen för det som oftast händer: ett extrapass som inte står i schemat. */
+    repeatLabel: (weekday: string) => `Händer också ${weekday}`,
+    repeat: (label: string) => `${label} — en extra gång`,
+    deviates: 'Ändrad',
+  },
+
+  dayEditor: {
+    /** "Skola · onsdag" — vad du ändrar, och vilken dag. Aldrig bara ett klockslag. */
+    title: (label: string, weekday: string) => `${label} · ${weekday}`,
+    timeLabel: 'Tid den här dagen',
+    onlyToday: (weekday: string) => `Gäller bara den här ${weekday}en. Resten av veckan står kvar.`,
+    off: 'Händer inte den här dagen',
+    offAgain: 'Händer ändå den här dagen',
+    restore: (weekday: string) => `Återställ till vanliga ${weekday}en`,
+    makeWeekly: (weekday: string) => `Gäller varje ${weekday} framöver`,
+    /** Delningen sägs rakt ut innan den sker — en rad blir två. */
+    splitHelp: (label: string, weekday: string, rest: string) =>
+      `${label} delas i två: ${weekday} med den nya tiden, och ${rest} som förut.`,
+    rewriteHelp: (label: string, weekday: string) =>
+      `${label} ligger bara på ${weekday}, så tiden skrivs om. Ingen ny rad.`,
+    offWeeklyHelp: (label: string, weekday: string) =>
+      `${label} tas bort från ${weekday}. Övriga dagar står kvar.`,
+    remove: (label: string) => `Ta bort ${label} helt`,
+    removeHelp: 'Från alla dagar, alla veckor.',
+    done: 'Klar',
   },
 
   nextSession: {
@@ -243,14 +268,10 @@ export const sv = {
 
   commitments: {
     title: 'Åtaganden',
-    lead: 'Det som tar upp tid.',
+    lead: 'Det som tar upp tid varje vecka. Enstaka dagar ändrar du i Veckan.',
     recurring: 'Återkommande',
-    thisWeek: 'Den här veckan',
     add: 'Lägg till åtagande',
-    addException: 'Lägg till undantag',
     mealAfterBadge: 'Mat efter',
-    noRecurring: 'Inget återkommande än.',
-    noExceptions: 'Inga undantag den här veckan.',
     empty: {
       title: 'Vad tar upp din tid?',
       body: 'Lägg in skola, jobb, pendling, hämtningar — det som ligger fast. Appen räknar ut när träningen får plats däremellan.',
@@ -279,37 +300,7 @@ export const sv = {
     endBeforeStart: 'Sluttiden måste vara efter starttiden.',
   },
 
-  exceptionEditor: {
-    title: 'Undantag den här veckan',
-    lead: 'Gäller bara den här veckan och ändrar inte det återkommande.',
-    whichLabel: 'Vilket åtagande',
-    kindLabel: 'Vad händer',
-    dayLabel: 'Dag',
-    off: 'Ledigt',
-    moved: 'Annan tid',
-    extra: 'Extra pass',
-    timeLabel: 'Tid',
-    create: 'Lägg till undantag',
-    remove: 'Ta bort',
-    noDaysForKind: 'Åtagandet återkommer inte någon dag den här veckan, så det finns inget att ställa in eller flytta.',
-  },
 
-  /**
-   * Beskriver ett undantag i listan. "Extra pass" bara när det verkligen är ett
-   * extra tillfälle av något återkommande — en engångshändelse är inget extra,
-   * den är allt som finns.
-   */
-  exception(
-    kind: 'off' | 'moved' | 'extra',
-    start?: Minutes,
-    end?: Minutes,
-    recurring = true,
-  ): string {
-    if (kind === 'off') return 'Inställt';
-    const when = clockRange(start ?? 0, end ?? 0);
-    if (kind === 'moved') return `Flyttat till ${when}`;
-    return recurring ? `Extra pass ${when}` : when;
-  },
 
   weekdays: {
     long: weekdayNames,

@@ -1,26 +1,23 @@
 import { useState } from 'react';
 import { Button, clockRange, EmptyState, Screen, ScreenHeader } from '../../design';
-import type { Commitment, CommitmentException, IsoDate } from '../../scheduling/types';
+import type { Commitment, IsoDate } from '../../scheduling/types';
 import { strings } from '../../strings';
 import {
   addCommitment,
-  addException,
-  exceptionsInWeek,
   newCommitment,
   recurringCommitments,
   removeCommitment,
-  removeExceptionAt,
   updateCommitment,
 } from './commitmentActions';
 import { CommitmentEditor } from './CommitmentEditor';
-import { ExceptionEditor } from './ExceptionEditor';
 
 /**
- * Flik 3 — det som tar upp tid.
+ * Flik 3 — reglerna. Det som händer varje vecka, en gång uppsatt.
  *
- * Två sorter, båda behövs: återkommande regler som sätts upp en gång, och
- * undantag för den här veckan som överskrider dem utan att ändra dem.
- * Ingenting sparas med en knapp — varje ändring räknar om veckan direkt.
+ * En enskild dag ändras inte här utan i Veckan, där man ser den. Listan över
+ * veckans avvikelser låg tidigare här under ordet "undantag" — ett ord som
+ * beskrev maskineriet och tvingade en att leta i fel flik för appens
+ * vanligaste ändring. Ingenting sparas med en knapp.
  */
 export function CommitmentsView({
   commitments,
@@ -38,12 +35,10 @@ export function CommitmentsView({
 }) {
   const [draft, setDraft] = useState<Commitment | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [addingException, setAddingException] = useState(false);
 
   const editing = commitments.find((item) => item.id === editingId) ?? null;
-  const exceptions = exceptionsInWeek(commitments, dates);
-  // En markering dragen i veckovyn är inget återkommande åtagande — den hör
-  // bara hemma under "Den här veckan", inte på två ställen samtidigt.
+  // En markering dragen i veckovyn är inget återkommande åtagande. Den hör
+  // hemma på dagen den ligger på, inte i listan över det som återkommer.
   const recurring = recurringCommitments(commitments);
 
   return (
@@ -55,7 +50,7 @@ export function CommitmentsView({
           </p>
         )}
 
-        {recurring.length === 0 && exceptions.length === 0 ? (
+        {recurring.length === 0 ? (
           <EmptyState
             title={strings.commitments.empty.title}
             body={strings.commitments.empty.body}
@@ -67,9 +62,6 @@ export function CommitmentsView({
             <ScreenHeader title={strings.commitments.title} lead={strings.commitments.lead} />
 
             <Section title={strings.commitments.recurring}>
-              {recurring.length === 0 ? (
-                <p className="text-[15px] text-ink-soft">{strings.commitments.noRecurring}</p>
-              ) : (
               <Card>
                 {recurring.map((commitment) => (
                   <Row key={commitment.id} onClick={() => setEditingId(commitment.id)}>
@@ -90,7 +82,6 @@ export function CommitmentsView({
                   </Row>
                 ))}
               </Card>
-              )}
               <div className="mt-3">
                 <Button variant="quiet" onClick={() => setDraft(newCommitment())}>
                   {strings.commitments.add}
@@ -98,55 +89,6 @@ export function CommitmentsView({
               </div>
             </Section>
 
-            <Section title={strings.commitments.thisWeek}>
-              {exceptions.length === 0 ? (
-                <p className="text-[15px] text-ink-soft">{strings.commitments.noExceptions}</p>
-              ) : (
-                <Card>
-                  {exceptions.map((item) => (
-                    <li
-                      key={`${item.commitmentId}-${item.index}`}
-                      className="flex items-center justify-between gap-3 border-b border-line px-4 py-3.5 last:border-b-0"
-                    >
-                      <button
-                        type="button"
-                        // Bara en engångshändelse är sig själv. Ett undantag på
-                        // något återkommande hör hemma i det åtagandet, inte här.
-                        disabled={item.recurring}
-                        onClick={() => setEditingId(item.commitmentId)}
-                        className="flex-1 text-left"
-                      >
-                        <span className="block text-[15px] font-semibold">
-                          {item.label} · {strings.relativeDay(item.exception.date, today)}
-                        </span>
-                        <span className="mt-0.5 block text-[14px] text-ink-soft tabular-nums">
-                          {strings.exception(
-                            item.exception.kind,
-                            'start' in item.exception ? item.exception.start : undefined,
-                            'end' in item.exception ? item.exception.end : undefined,
-                            item.recurring,
-                          )}
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          onChange(removeExceptionAt(commitments, item.commitmentId, item.index))
-                        }
-                        className="-mr-2 shrink-0 px-2 py-2 text-[14px] font-medium text-accent-text"
-                      >
-                        {strings.exceptionEditor.remove}
-                      </button>
-                    </li>
-                  ))}
-                </Card>
-              )}
-              <div className="mt-3">
-                <Button variant="quiet" onClick={() => setAddingException(true)}>
-                  {strings.commitments.addException}
-                </Button>
-              </div>
-            </Section>
           </>
         )}
       </Screen>
@@ -181,17 +123,6 @@ export function CommitmentsView({
         />
       )}
 
-      {addingException && commitments.length > 0 && (
-        <ExceptionEditor
-          commitments={commitments}
-          dates={dates}
-          onCreate={(commitmentId: string, exception: CommitmentException) => {
-            onChange(addException(commitments, commitmentId, exception));
-            setAddingException(false);
-          }}
-          onClose={() => setAddingException(false)}
-        />
-      )}
     </>
   );
 }

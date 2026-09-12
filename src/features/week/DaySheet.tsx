@@ -1,15 +1,17 @@
-import { useState } from 'react';
 import { clock, clockRange, duration, Button, Sheet } from '../../design';
+import { weekdayOf } from '../../scheduling/date';
+import { useState } from 'react';
 import type { Commitment, IsoDate, PlannedDay } from '../../scheduling/types';
 import { strings } from '../../strings';
 import {
   addCommitment,
   asOneOff,
   newCommitment,
-  removeCommitment,
-  updateCommitment,
+  recurringCommitments,
+  repeatOnDate,
 } from '../commitments/commitmentActions';
 import { CommitmentEditor } from '../commitments/CommitmentEditor';
+import { DayCommitmentEditor } from './DayCommitmentEditor';
 
 /**
  * En dag i närbild. Härifrån ändras dagen — vilket alltid betyder att ändra
@@ -32,7 +34,11 @@ export function DaySheet({
   const [draft, setDraft] = useState<Commitment | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const editing = commitments.find((item) => item.id === editingId) ?? null;
+  // Det som oftast händer är ett extrapass på något man redan har — ett jobbpass
+  // som inte står i schemat. Att skriva in det från början vore att mata in
+  // samma sak en gång till, så det ligger som en knapp med tiderna ifyllda.
+  const here = new Set(day.commitments.map((block) => block.commitmentId));
+  const alsoToday = recurringCommitments(commitments).filter((item) => !here.has(item.id));
 
   return (
     <>
@@ -70,7 +76,10 @@ export function DaySheet({
             {day.commitments.map((block, index) => {
               const source = commitments.find((item) => item.id === block.commitmentId);
               return (
-                <li key={`${block.commitmentId}-${index}`} className="border-b border-line last:border-b-0">
+                <li
+                  key={`${block.commitmentId}-${index}`}
+                  className="border-b border-line last:border-b-0"
+                >
                   <button
                     type="button"
                     disabled={!source}
@@ -88,7 +97,31 @@ export function DaySheet({
           </ul>
         )}
 
-        <div className="mt-3">
+        {alsoToday.length > 0 && (
+          <>
+            <h3 className="mt-8 mb-3 text-[12px] font-semibold tracking-[0.14em] text-ink-faint uppercase">
+              {strings.week.repeatLabel(strings.weekdays.long[weekdayOf(day.date) - 1]!)}
+            </h3>
+            <div className="flex flex-col gap-2">
+              {alsoToday.map((item) => (
+                <Button
+                  key={item.id}
+                  variant="quiet"
+                  onClick={() => {
+                    onChange(repeatOnDate(commitments, item.id, day.date));
+                    // Tiderna kom från det vanliga. Redigeraren öppnas direkt så
+                    // att ett pass som börjar tidigare går att rätta på en gång.
+                    setEditingId(item.id);
+                  }}
+                >
+                  {strings.week.repeat(item.label)}
+                </Button>
+              ))}
+            </div>
+          </>
+        )}
+
+        <div className="mt-8">
           <Button
             variant="quiet"
             onClick={() => {
@@ -118,17 +151,12 @@ export function DaySheet({
         />
       )}
 
-      {editing && (
-        <CommitmentEditor
-          commitment={editing}
-          isNew={false}
-          dates={dates}
-          onChange={(patch) => onChange(updateCommitment(commitments, editing.id, patch))}
-          onCreate={() => setEditingId(null)}
-          onRemove={() => {
-            onChange(removeCommitment(commitments, editing.id));
-            setEditingId(null);
-          }}
+      {editingId !== null && (
+        <DayCommitmentEditor
+          commitments={commitments}
+          commitmentId={editingId}
+          date={day.date}
+          onChange={onChange}
           onClose={() => setEditingId(null)}
         />
       )}

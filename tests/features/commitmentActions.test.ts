@@ -1,15 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
-  addException,
   asOneOff,
-  exceptionsInWeek,
   isUsable,
   newCommitment,
   oneOffDate,
   recurringCommitments,
-  recurringDatesInWeek,
   removeCommitment,
-  removeExceptionAt,
   toggleWeekday,
   updateCommitment,
 } from '../../src/features/commitments/commitmentActions';
@@ -56,71 +52,6 @@ describe('removeCommitment', () => {
   });
 });
 
-describe('undantag', () => {
-  it('läggs till utan att röra den återkommande regeln', () => {
-    const list = [commitment({ id: 'skola' })];
-    const updated = addException(list, 'skola', { date: '2025-09-05', kind: 'off' });
-
-    expect(updated[0]!.weekdays).toEqual([1, 2, 3, 4, 5]);
-    expect(updated[0]!.exceptions).toEqual([{ date: '2025-09-05', kind: 'off' }]);
-  });
-
-  it('samlas ihop för veckan, sorterade på datum', () => {
-    const list = [
-      commitment({
-        id: 'skola',
-        label: 'Skola',
-        exceptions: [{ date: '2025-09-05', kind: 'off' }],
-      }),
-      commitment({
-        id: 'jobb',
-        label: 'Jobb',
-        weekdays: [2],
-        exceptions: [{ date: '2025-09-03', kind: 'extra', start: 960, end: 1080 }],
-      }),
-    ];
-
-    const found = exceptionsInWeek(list, week);
-    expect(found.map((item) => item.exception.date)).toEqual(['2025-09-03', '2025-09-05']);
-    expect(found[0]!.label).toBe('Jobb');
-  });
-
-  it('tar inte med undantag som ligger utanför veckan', () => {
-    const list = [commitment({ exceptions: [{ date: '2025-09-15', kind: 'off' }] })];
-    expect(exceptionsInWeek(list, week)).toEqual([]);
-  });
-
-  it('tas bort på index, så två undantag samma dag inte förväxlas', () => {
-    const list = [
-      commitment({
-        id: 'jobb',
-        exceptions: [
-          { date: '2025-09-03', kind: 'extra', start: 960, end: 1080 },
-          { date: '2025-09-03', kind: 'extra', start: 1200, end: 1260 },
-        ],
-      }),
-    ];
-
-    const updated = removeExceptionAt(list, 'jobb', 0);
-    expect(updated[0]!.exceptions).toEqual([
-      { date: '2025-09-03', kind: 'extra', start: 1200, end: 1260 },
-    ]);
-  });
-});
-
-describe('recurringDatesInWeek', () => {
-  it('ger bara de dagar åtagandet faktiskt ligger på', () => {
-    expect(recurringDatesInWeek(commitment({ weekdays: [1, 5] }), week)).toEqual([
-      '2025-09-01',
-      '2025-09-05',
-    ]);
-  });
-
-  it('ger inga dagar för ett åtagande utan fasta dagar', () => {
-    expect(recurringDatesInWeek(commitment({ weekdays: [] }), week)).toEqual([]);
-  });
-});
-
 describe('isUsable', () => {
   it('kräver både namn och minst en dag', () => {
     expect(isUsable(commitment())).toBe(true);
@@ -157,39 +88,6 @@ describe('vad som räknas som återkommande', () => {
       exceptions: [{ date: '2025-09-01', kind: 'extra', start: 600, end: 700 }],
     });
     expect(recurringCommitments([markering])).toEqual([]);
-  });
-});
-
-describe('städning när ett undantag tas bort', () => {
-  it('tar bort ett åtagande som inte har något kvar', () => {
-    const markering = commitment({
-      id: 'dragen',
-      weekdays: [],
-      exceptions: [{ date: '2025-09-01', kind: 'extra', start: 600, end: 700 }],
-    });
-    expect(removeExceptionAt([markering], 'dragen', 0)).toEqual([]);
-  });
-
-  it('behåller ett åtagande som fortfarande återkommer', () => {
-    const skola = commitment({
-      id: 'skola',
-      exceptions: [{ date: '2025-09-05', kind: 'off' }],
-    });
-    const kvar = removeExceptionAt([skola], 'skola', 0);
-    expect(kvar).toHaveLength(1);
-    expect(kvar[0]!.exceptions).toEqual([]);
-  });
-
-  it('behåller ett åtagande som har fler undantag kvar', () => {
-    const markering = commitment({
-      id: 'dragen',
-      weekdays: [],
-      exceptions: [
-        { date: '2025-09-01', kind: 'extra', start: 600, end: 700 },
-        { date: '2025-09-02', kind: 'extra', start: 600, end: 700 },
-      ],
-    });
-    expect(removeExceptionAt([markering], 'dragen', 0)).toHaveLength(1);
   });
 });
 
@@ -242,25 +140,5 @@ describe('engångshändelser', () => {
 
   it('lämnar undantagen tomma tills en dag är vald', () => {
     expect(asOneOff(commitment(), null, 600, 700).exceptions).toEqual([]);
-  });
-
-  it('säger vilka undantag som hör till något återkommande', () => {
-    const list = [
-      commitment({
-        id: 'skola',
-        exceptions: [{ date: '2025-09-05', kind: 'off' }],
-      }),
-      commitment({
-        id: 'plugga',
-        label: 'Plugga',
-        weekdays: [],
-        exceptions: [{ date: '2025-09-02', kind: 'extra', start: 1140, end: 1200 }],
-      }),
-    ];
-    const found = exceptionsInWeek(list, week);
-    expect(found.map((item) => [item.commitmentId, item.recurring])).toEqual([
-      ['plugga', false],
-      ['skola', true],
-    ]);
   });
 });

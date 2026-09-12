@@ -24,6 +24,25 @@ genom samma motor som allt annat, så blocket som rör sig är ett riktigt
 resultat — inte en animation som låtsas. Ingenting skrivs förrän man släpper,
 och samma sak går att göra utan drag genom att trycka på dagen.
 
+**Veckan är där en enskild dag ändras.** Trycker man på ett åtagande under en
+dag ändrar man den dagen — inget annat. Tidigare öppnade samma tryck den
+återkommande regeln och skrev om alla veckor utan att säga det: en ändrad
+sluttid på onsdagen flyttade skolan måndag till fredag, för alltid. Att ändra
+regeln finns kvar som ett eget val längre ner, med en mening som säger vad som
+händer med de andra dagarna innan man trycker.
+
+"Gäller varje onsdag framöver" delar åtagandet i två rader i stället för att
+införa tider per veckodag i datamodellen. Två rader är sanna, kräver ingen
+migrering och ändrar ingenting i motorn.
+
+Det som oftast händer — ett extrapass på jobbet — ligger som en knapp i dagen
+med de vanliga tiderna ifyllda: tre tryck i stället för nio. Dagar som inte
+följer det vanliga märks med ÄNDRAD i veckan.
+
+Ordet "undantag" finns inte längre i gränssnittet. Det beskrev maskineriet,
+inte vad användaren gjorde, och tvingade en att leta i fel flik efter appens
+vanligaste ändring. Undantagen finns kvar i datan, där de hör hemma.
+
 Appen ligger live på https://alfonswillstedt-design.github.io/training-2.0/
 och deployas automatiskt vid varje push. Testerna är en grind i bygget: går de
 inte igenom deployas ingenting.
